@@ -1,0 +1,161 @@
+{% extends "base_auth.html" %}
+{% load static %}
+
+{% block title %}Game Hub | STEM Quests | RuralEdu{% endblock %}
+{% block breadcrumb %}Student / Game Hub{% endblock %}
+{% block page_title %}Available STEM Missions{% endblock %}
+
+{% block content %}
+<style>
+    /* Game Hub Arcade Grid */
+    .game-hub-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 30px;
+    }
+
+    /* Glassmorphism Arcade Card */
+    .game-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px) saturate(180%);
+        border: 2px solid #ffffff;
+        border-radius: 40px;
+        padding: 2.5rem;
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .game-card:hover {
+        transform: translateY(-15px);
+        border-color: var(--primary);
+        box-shadow: 0 40px 80px -20px rgba(46, 139, 87, 0.2);
+    }
+
+    /* Difficulty & Subject Tags */
+    .game-tag-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .tag {
+        padding: 4px 12px;
+        border-radius: 10px;
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .tag-subject { background: #eef2ff; color: var(--secondary); }
+    .tag-difficulty { background: #f8f9fa; color: #6C757D; border: 1px solid var(--border-soft); }
+
+    /* XP Glow Container */
+    .xp-reward-box {
+        background: #fff8e1;
+        border: 1px solid #ffecb3;
+        padding: 1rem;
+        border-radius: 20px;
+        text-align: center;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .game-card:hover .xp-reward-box {
+        background: var(--accent);
+        border-color: var(--accent);
+        box-shadow: 0 0 20px rgba(255, 165, 2, 0.4);
+    }
+
+    .game-card:hover .xp-reward-box p, 
+    .game-card:hover .xp-reward-box span {
+        color: white !important;
+    }
+
+    /* Floating Game Icon */
+    .game-icon-circle {
+        width: 60px;
+        height: 60px;
+        background: white;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--primary);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        margin-bottom: 1.5rem;
+    }
+</style>
+
+<div class="animate-in fade-in slide-in-from-bottom-8 duration-1000">
+    
+    <div class="bg-white p-10 rounded-[50px] shadow-sm border border-gray-100 mb-12 flex flex-col md:flex-row justify-between items-center gap-8">
+        <div class="flex items-center gap-8">
+            <div class="w-20 h-20 bg-orange-50 text-[var(--accent)] rounded-[30px] flex items-center justify-center text-4xl shadow-lg border-4 border-white">
+                <i class="fa-solid fa-gamepad"></i>
+            </div>
+            <div>
+                <h2 class="heading-font text-3xl font-black text-gray-900 mb-1">Missions Available</h2>
+                <p class="text-sm text-gray-500 font-medium">Select a module below to start earning XP and climbing the ranks.</p>
+            </div>
+        </div>
+        <div class="flex gap-4">
+            <div class="px-6 py-3 rounded-2xl bg-gray-50 border border-gray-100 text-center">
+                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Global Missions</p>
+                <p class="font-bold text-gray-700">{{ games.count }} Active</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-hub-container">
+        {% for game in games %}
+        <div class="game-card">
+            <div class="game-tag-row">
+                <span class="tag tag-subject">{{ game.subject.name }}</span>
+                <span class="tag tag-difficulty">{{ game.get_difficulty_display }}</span>
+            </div>
+
+            <div class="game-icon-circle">
+                <i class="fa-solid {% if 'Quiz' in game.title %}fa-lightbulb{% elif 'Battle' in game.title %}fa-bolt-lightning{% else %}fa-microchip{% endif %}"></i>
+            </div>
+
+            <h3 class="heading-font text-2xl font-black text-gray-800 mb-2">{{ game.title }}</h3>
+            <p class="text-xs text-gray-400 font-medium leading-relaxed mb-6">
+                Master the concepts of {{ game.subject.name }} through this interactive mission. High accuracy yields maximum reward.
+            </p>
+
+            <div class="xp-reward-box">
+                <p class="text-[10px] font-black text-[var(--accent)] uppercase tracking-[0.2em] mb-1">Potential Reward</p>
+                <span class="heading-font text-2xl font-black text-gray-900">+{{ game.xp_reward }} XP</span>
+            </div>
+
+            <div class="mt-auto">
+                <a href="{% url 'games:game_detail' game.id %}" class="btn-glow w-full py-4 rounded-2xl text-[11px] flex items-center justify-center gap-3">
+                    INITIALIZE MISSION <i class="fa-solid fa-rocket"></i>
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full py-32 text-center bg-white rounded-[60px] border-4 border-dashed border-gray-50">
+            <div class="w-24 h-24 bg-gray-50 text-gray-200 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
+                <i class="fa-solid fa-satellite-dish"></i>
+            </div>
+            <h3 class="heading-font text-2xl font-black text-gray-400">Scanning for Missions...</h3>
+            <p class="text-sm text-gray-300 max-w-md mx-auto mt-2">No active missions found in your current sector. Check back later or contact your Mentor.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    // Subtle float animation trigger for cards
+    document.querySelectorAll('.game-card').forEach((card, index) => {
+        card.style.animationDelay = `${index * 100}ms`;
+    });
+</script>
+{% endblock %}

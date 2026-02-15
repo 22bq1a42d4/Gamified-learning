@@ -1,0 +1,227 @@
+{% extends "base_auth.html" %}
+{% load static %}
+
+{% block title %}Mentor Intelligence | Performance Hub | RuralEdu{% endblock %}
+{% block breadcrumb %}Analytics / Mentor Intelligence{% endblock %}
+{% block page_title %}Class Performance Monitoring{% endblock %}
+
+{% block content %}
+<style>
+    /* 3D Performance Stats Grid */
+    .performance-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border: 2px solid #ffffff;
+        border-radius: 35px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .performance-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 60px -15px rgba(0,0,0,0.1);
+        border-color: var(--primary);
+    }
+
+    .stat-ring-bg {
+        width: 55px;
+        height: 55px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    /* Distribution Matrix */
+    .matrix-wrapper {
+        background: white;
+        border-radius: 40px;
+        border: 1px solid var(--border-soft);
+        box-shadow: 0 20px 40px -20px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .matrix-row:hover {
+        background: rgba(76, 110, 245, 0.02);
+    }
+
+    /* Alert and Performance Badges */
+    .xp-badge-dynamic {
+        padding: 6px 14px;
+        border-radius: 10px;
+        font-weight: 800;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-top { background: #f0fdf4; color: #28a745; border: 1px solid #dcfce7; }
+    .badge-lag { background: #fef2f2; color: #dc3545; border: 1px solid #fee2e2; }
+    .badge-normal { background: #fff8e1; color: var(--accent); border: 1px solid #ffecb3; }
+</style>
+
+<div class="animate-in fade-in slide-in-from-bottom-10 duration-1000">
+    
+    <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-12 px-4">
+        <div>
+            <p class="text-gray-500 text-sm font-medium">Monitoring student engagement and identifying learning gaps for <span class="text-[var(--primary)] font-bold">{{ user.institute.name }}</span>.</p>
+        </div>
+        <div class="flex items-center gap-3 bg-white px-6 py-3 rounded-2xl shadow-sm border border-gray-100">
+            <i class="fa-solid fa-tower-broadcast text-[var(--secondary)] animate-pulse"></i>
+            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Live Sector Feed</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        
+        <div class="performance-card">
+            <div class="stat-ring-bg bg-green-50 text-[var(--primary)]">
+                <i class="fa-solid fa-users-viewfinder"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Enrollment</p>
+                <h2 class="heading-font text-4xl font-black text-gray-900 mt-1">{{ total_students|default:0 }}</h2>
+            </div>
+        </div>
+
+        <div class="performance-card">
+            <div class="stat-ring-bg bg-blue-50 text-[var(--secondary)]">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Global Avg XP</p>
+                <h2 class="heading-font text-4xl font-black text-[var(--secondary)] mt-1">{{ average_xp|default:0 }}</h2>
+            </div>
+        </div>
+
+        <div class="performance-card">
+            <div class="stat-ring-bg bg-orange-50 text-[var(--accent)]">
+                <i class="fa-solid fa-medal"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Vanguard Score</p>
+                <h2 class="heading-font text-4xl font-black text-green-600 mt-1">{{ top_students.count|default:0 }}</h2>
+            </div>
+        </div>
+
+        <div class="performance-card">
+            <div class="stat-ring-bg bg-red-50 text-red-500">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Attention Req.</p>
+                <h2 class="heading-font text-4xl font-black text-red-500 mt-1">{{ lagging_students.count|default:0 }}</h2>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="matrix-wrapper">
+        <div class="p-8 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+            <h3 class="heading-font text-xl font-black text-gray-800">Student XP Distribution Matrix</h3>
+            <div class="flex items-center gap-6">
+                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Registry Sync: 100%</span>
+                <a href="{% url 'analytics:download_report' %}"
+                class="text-[10px] font-black text-[var(--primary)] uppercase tracking-widest hover:underline">
+                Download Intelligence Report
+                </a>
+            </div>
+        </div>
+        
+        <table class="w-full">
+            <thead class="bg-white border-b border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                <tr>
+                    <th class="px-8 py-6 text-left">Pioneer Identity</th>
+                    <th class="px-8 py-6 text-left">Sector / Class</th>
+                    <th class="px-8 py-6 text-left">Mastery Level</th>
+                    <th class="px-8 py-6 text-left">Performance Status</th>
+                    <th class="px-8 py-6 text-right">Administrative</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+                {% for profile in top_students|dictsortreversed:"total_xp" %}
+                <tr class="matrix-row transition-colors bg-white">
+                    <td class="px-8 py-6">
+                        <div class="font-bold text-gray-900 text-base">{{ profile.student.email }}</div>
+                        <div class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">UID: #STEM-0{{ profile.student.id }}</div>
+                    </td>
+                    <td class="px-8 py-6 text-sm font-bold text-gray-500 uppercase">
+                        Class {{ profile.student.class_studying|default:"---" }}
+                    </td>
+                    <td class="px-8 py-6">
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-black text-gray-800">{{ profile.total_xp }} XP</span>
+                            <div class="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                <div class="bg-[var(--primary)] h-full" style="width: 85%;"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-8 py-6">
+                        <span class="xp-badge-dynamic badge-top">Top Performer</span>
+                    </td>
+                    <td class="px-8 py-6 text-right">
+                        <a href="{% url 'analytics:audit_profile' profile.student.id %}" class="text-[10px] font-black text-[var(--secondary)] uppercase hover:underline">Audit Profile</a>
+                    </td>
+                </tr>
+                {% endfor %}
+
+                {% for profile in lagging_students %}
+                <tr class="matrix-row transition-colors bg-white">
+                    <td class="px-8 py-6">
+                        <div class="font-bold text-gray-900 text-base">{{ profile.student.email }}</div>
+                        <div class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">UID: #STEM-0{{ profile.student.id }}</div>
+                    </td>
+                    <td class="px-8 py-6 text-sm font-bold text-gray-500 uppercase">
+                        Class {{ profile.student.class_studying|default:"---" }}
+                    </td>
+                    <td class="px-8 py-6">
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-black text-gray-800">{{ profile.total_xp }} XP</span>
+                            <div class="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                <div class="bg-red-400 h-full" style="width: 15%;"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-8 py-6">
+                        <span class="xp-badge-dynamic badge-lag">Intervention Req.</span>
+                    </td>
+                    <td class="px-8 py-6 text-right">
+                        <a href="{% url 'analytics:message_student' profile.student.id %}" class="text-[10px] font-black text-red-500 uppercase hover:underline">Message Mentor</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-12 grid md:grid-cols-2 gap-8">
+        <div class="bg-gray-900 p-8 rounded-[40px] text-white flex items-center gap-6 shadow-xl relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-[var(--primary)] opacity-10 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
+            <div class="text-4xl text-[var(--accent)] animate-pulse">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <div>
+                <h4 class="font-bold text-sm">Automated Vanguard detection</h4>
+                <p class="text-xs text-gray-400 mt-1 leading-relaxed">Students with rapid XP growth are auto-prioritized for advanced curriculum challenges.</p>
+            </div>
+        </div>
+        <div class="bg-[var(--secondary)] p-8 rounded-[40px] text-white flex items-center gap-6 shadow-xl relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
+            <div class="text-4xl opacity-50">
+                <i class="fa-solid fa-chart-pie"></i>
+            </div>
+            <div>
+                <h4 class="font-bold text-sm">Institute Data Integrity</h4>
+                <p class="text-xs opacity-80 mt-1 leading-relaxed">All performance metrics shown are strictly scoped to verified students of your registered institute.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

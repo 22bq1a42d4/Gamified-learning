@@ -1,0 +1,179 @@
+{% extends "base_auth.html" %}
+{% load static %}
+
+{% block title %}{{ subject.name }} | Subject Overview{% endblock %}
+
+{% block breadcrumb %}
+Subjects / {{ subject.name }}
+{% endblock %}
+
+{% block page_title %}
+{{ subject.name }} - Class {{ subject.academic_class.grade }}
+{% endblock %}
+
+{% block extra_head %}
+<style>
+
+    .subject-hero {
+        background: linear-gradient(135deg, rgba(46,139,87,0.1), rgba(76,110,245,0.1));
+        padding: 30px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+        border: 1px solid var(--border-soft);
+    }
+
+    .game-card {
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: 14px;
+        padding: 20px;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .game-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    }
+
+    .xp-badge {
+        background: var(--accent);
+        color: white;
+        font-weight: 700;
+        font-size: 12px;
+        padding: 5px 10px;
+        border-radius: 8px;
+        display: inline-block;
+    }
+
+    .play-btn {
+        background: var(--primary);
+        color: white;
+        padding: 10px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        text-align: center;
+        transition: 0.3s ease;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .play-btn:hover {
+        background: var(--secondary);
+        box-shadow: 0 6px 15px rgba(76,110,245,0.2);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--text-muted);
+    }
+
+    .empty-state i {
+        font-size: 40px;
+        margin-bottom: 15px;
+        color: var(--secondary);
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ========================= -->
+<!-- SUBJECT HEADER SECTION -->
+<!-- ========================= -->
+<div class="subject-hero">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+
+        <div>
+            <h2 style="margin:0; font-family:Poppins; font-weight:600;">
+                {{ subject.name }}
+            </h2>
+
+            <p style="margin:5px 0; font-size:14px; color:var(--text-muted);">
+                Class {{ subject.academic_class.grade }}
+                {% if subject.stream %}
+                    • Stream: {{ subject.stream.name }}
+                {% endif %}
+            </p>
+
+            {% if subject.description %}
+            <p style="margin-top:10px; font-size:14px;">
+                {{ subject.description }}
+            </p>
+            {% endif %}
+        </div>
+
+        <div>
+            <span class="xp-badge">
+                {{ games|length }} Games Available
+            </span>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- GAMES SECTION -->
+<!-- ========================= -->
+
+<h3 style="margin-bottom:20px; font-family:Poppins;">
+    Available STEM Games
+</h3>
+
+{% if games %}
+
+<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:20px;">
+
+    {% for game in games %}
+
+    <div class="game-card">
+
+        <div>
+
+            <h4 style="margin:0 0 10px 0;">
+                {{ game.title }}
+            </h4>
+
+            <p style="font-size:13px; color:var(--text-muted); min-height:40px;">
+                {{ game.description|default:"Interactive gamified assessment challenge." }}
+            </p>
+
+            <div style="margin-top:10px;">
+                <span class="xp-badge">
+                    +{{ game.xp_reward }} XP
+                </span>
+            </div>
+
+        </div>
+
+        <div style="margin-top:20px;">
+            <a href="{% url 'games:play_game' game.id %}" class="play-btn">
+                Play Now
+            </a>
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% else %}
+
+<div class="empty-state">
+    <i class="fa-solid fa-gamepad"></i>
+    <p>No games available for this subject yet.</p>
+</div>
+
+{% endif %}
+
+{% endblock %}

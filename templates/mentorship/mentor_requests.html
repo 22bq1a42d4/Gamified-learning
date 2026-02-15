@@ -1,0 +1,122 @@
+{% extends "base_auth.html" %}
+{% load static %}
+
+{% block title %}Mentor Requests | RuralEdu{% endblock %}
+{% block breadcrumb %}Mentorship / Requests{% endblock %}
+{% block page_title %}Mentor Requests{% endblock %}
+
+{% block content %}
+
+<style>
+    .request-card {
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: 14px;
+        padding: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+
+    .request-card:hover {
+        box-shadow: 0 10px 25px rgba(76,110,245,0.15);
+    }
+
+    .student-avatar {
+        width: 45px;
+        height: 45px;
+        background: var(--primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+    }
+
+    .btn-approve {
+        background: var(--primary);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        border: none;
+        cursor: pointer;
+        transition: 0.3s ease;
+        margin-right: 8px;
+    }
+
+    .btn-approve:hover {
+        background: #28A745;
+        box-shadow: 0 6px 12px rgba(40,167,69,0.3);
+    }
+
+    .btn-reject {
+        background: #fff0f0;
+        color: #DC3545;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        border: none;
+        cursor: pointer;
+        transition: 0.3s ease;
+    }
+
+    .btn-reject:hover {
+        background: #DC3545;
+        color: white;
+        box-shadow: 0 6px 12px rgba(220,53,69,0.3);
+    }
+
+    .empty-state {
+        text-align:center;
+        padding:60px;
+        color:var(--text-muted);
+    }
+</style>
+
+<div style="display:flex; flex-direction:column; gap:20px;">
+
+    {% for req in requests %}
+    <div class="request-card">
+
+        <div style="display:flex; align-items:center; gap:15px;">
+            <div class="student-avatar">
+                {{ req.student.email|slice:":1"|upper }}
+            </div>
+            <div>
+                <h4 style="margin:0; font-family:Poppins;">
+                    {{ req.student.email }}
+                </h4>
+                <p style="margin:0; font-size:12px; color:var(--text-muted);">
+                    Requested mentorship
+                </p>
+            </div>
+        </div>
+
+        <div>
+            <a href="{% url 'mentorship:approve_request' req.id %}" class="btn-approve">
+                Approve
+            </a>
+            <a href="{% url 'mentorship:reject_request' req.id %}" class="btn-reject">
+                Reject
+            </a>
+        </div>
+
+    </div>
+    {% empty %}
+        <div class="empty-state">
+            <i class="fa-solid fa-inbox" style="font-size:40px; color:var(--border-soft);"></i>
+            <p>No pending mentor requests.</p>
+        </div>
+    {% endfor %}
+
+</div>
+
+{% endblock %}

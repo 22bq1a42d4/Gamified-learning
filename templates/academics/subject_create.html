@@ -1,0 +1,167 @@
+{% extends "base_auth.html" %}
+{% load static %}
+
+{% block title %}Registry | Create Subject | RuralEdu Quest{% endblock %}
+{% block breadcrumb %}Admin / Academics / Create{% endblock %}
+{% block page_title %}Define Academic Module{% endblock %}
+
+{% block content %}
+<style>
+    /* Centered Registry Container */
+    .form-page-wrapper {
+        display: flex;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+
+    /* Glassmorphism Subject Card */
+    .glass-subject-card {
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(20px) saturate(180%);
+        border: 2px solid #ffffff;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        border-radius: 40px;
+        width: 100%;
+        max-width: 750px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Custom Input & Select Styling */
+    .fancy-input {
+        background: #F8F9FA;
+        border: 2px solid transparent;
+        padding: 1.1rem 1.5rem;
+        border-radius: 20px;
+        width: 100%;
+        transition: all 0.3s ease;
+        outline: none;
+        font-weight: 600;
+        color: #212529;
+    }
+
+    .fancy-input:focus {
+        background: #ffffff;
+        border-color: var(--secondary);
+        box-shadow: 0 0 15px rgba(76, 110, 245, 0.1);
+    }
+
+    .input-label {
+        font-size: 10px;
+        font-weight: 800;
+        color: #9ca3af;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        margin-bottom: 0.6rem;
+        display: block;
+        padding-left: 0.5rem;
+    }
+
+    /* Action Button */
+    .btn-create-subject {
+        background: var(--primary);
+        color: white;
+        width: 100%;
+        padding: 1.2rem;
+        border-radius: 20px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: none;
+        cursor: pointer;
+        margin-top: 1rem;
+    }
+
+    .btn-create-subject:hover {
+        background: #1e5c3a;
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(46, 139, 87, 0.3);
+    }
+
+    .back-link {
+        font-size: 11px;
+        font-weight: 800;
+        color: #9ca3af;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: color 0.3s;
+    }
+
+    .back-link:hover { color: var(--text-main); }
+</style>
+
+<div class="form-page-wrapper animate-in fade-in slide-in-from-bottom-8 duration-700">
+    <div class="glass-subject-card p-10 md:p-14">
+        
+        <div class="absolute top-0 right-0 w-32 h-32 bg-[var(--secondary)] opacity-5 rounded-bl-[100px]"></div>
+
+        <div class="mb-10 text-center md:text-left">
+            <h2 class="heading-font text-3xl font-black text-gray-900">Define New Subject</h2>
+            <p class="text-gray-500 text-sm">Map academic modules to specific grades and learning streams.</p>
+        </div>
+
+        <form method="POST" class="space-y-8">
+            {% csrf_token %}
+
+            <div class="space-y-2">
+                <label class="input-label">Subject Identity (Name)</label>
+                <input type="text" name="name" required class="fancy-input" placeholder="e.g. Physics Core / Algebra Quest">
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="space-y-2">
+                    <label class="input-label">Academic Grade Level</label>
+                    <div class="relative">
+                        <select name="academic_class" required class="fancy-input cursor-pointer appearance-none">
+                            <option value="" disabled selected>Select Target Class</option>
+                            {% for c in classes %}
+                                <option value="{{ c.id }}">Class {{ c.grade }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="absolute inset-y-0 right-5 flex items-center pointer-events-none text-gray-400">
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="input-label">Stream Pathway (11-12)</label>
+                    <div class="relative">
+                        <select name="stream" class="fancy-input cursor-pointer appearance-none text-[var(--secondary)]">
+                            <option value="">Common Core (No Stream)</option>
+                            {% for s in streams %}
+                                <option value="{{ s.id }}">{{ s.name }} Pathway</option>
+                            {% endfor %}
+                        </select>
+                        <div class="absolute inset-y-0 right-5 flex items-center pointer-events-none text-gray-400">
+                            <i class="fa-solid fa-code-branch text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-blue-50/50 p-4 rounded-2xl border border-blue-100/50 flex gap-4">
+                <i class="fa-solid fa-circle-info text-[var(--secondary)] mt-1"></i>
+                <p class="text-[11px] text-gray-500 font-medium leading-relaxed">
+                    Modules created here will automatically appear on the dashboards of students matching the selected Grade and Stream within your institute.
+                </p>
+            </div>
+
+            <div class="pt-6 flex flex-col md:flex-row items-center justify-between gap-6 border-t border-gray-100">
+                <a href="{% url 'academics:subject_list' %}" class="back-link">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Return to Registry
+                </a>
+                <button type="submit" class="btn-create-subject md:w-auto px-12">
+                    Initialize Module <i class="fa-solid fa-book-sparkles"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

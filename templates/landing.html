@@ -1,0 +1,140 @@
+{% extends 'base_public.html' %}
+{% load static %}
+
+{% block content %}
+<section class="relative pt-24 pb-32">
+    <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+        <div class="relative z-10">
+            <div class="inline-flex items-center gap-3 bg-white px-5 py-2 rounded-full shadow-sm border border-gray-100 mb-8 animate-bounce">
+                <span class="flex h-3 w-3 rounded-full bg-[var(--accent)]"></span>
+                <span class="text-[10px] font-black uppercase tracking-widest text-gray-600">Gamified STEM Quest </span>
+            </div>
+            <h1 class="heading-font text-6xl xl:text-7xl font-black text-gray-900 leading-[1.05] mb-8">
+                Turn Your <span class="text-[var(--primary)]">Syllabus</span> into an <span class="text-[var(--secondary)]">Epic Adventure.</span>
+            </h1>
+            <p class="text-lg text-gray-500 mb-10 leading-relaxed max-w-xl">
+                For rural students in Grades 6-12. Master Science, Math, and Logic through interactive battles, XP streaks, and AI-driven mentoring. 
+            </p>
+            <div class="flex flex-wrap gap-5">
+                <a href="{% url 'accounts:signup' %}" class="btn-glow px-10 py-5 rounded-3xl text-sm flex items-center gap-3">
+                    START YOUR QUEST <i class="fa-solid fa-arrow-right"></i>
+                </a>
+                <a href="#features" class="bg-white border-2 border-gray-400 hover:border-[var(--secondary)] px-10 py-5 rounded-3xl text-sm font-black transition-all">
+                    EXPLORE MODULES
+                </a>
+            </div>
+        </div>
+
+        <div class="relative hidden lg:block animate-float">
+            <div class="absolute inset-0 bg-gradient-to-tr from-[var(--primary)] to-[var(--secondary)] opacity-10 blur-3xl rounded-full"></div>
+            <div class="bg-white p-6 rounded-[50px] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] border-8 border-white relative">
+                <div class="flex items-center justify-between px-6 mb-8">
+                    <div class="flex gap-2">
+                        <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                    </div>
+                    <span class="text-[9px] font-black text-gray-300 uppercase tracking-widest">student_dashboard.exe</span>
+                </div>
+                <div class="bg-gray-50 rounded-[35px] h-[400px] flex flex-col items-center justify-center p-12 border-2 border-dashed border-gray-200">
+                    <div class="w-24 h-24 bg-white rounded-3xl shadow-lg flex items-center justify-center mb-6">
+                        <i class="fa-solid fa-gamepad text-5xl text-[var(--accent)]"></i>
+                    </div>
+                    <h3 class="heading-font text-xl font-bold mb-2">Interactive Interface</h3>
+                    <p class="text-center text-xs text-gray-400 font-medium">Previewing Game Content Designed for Rural Deployment </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="features" class="py-32 bg-white">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+        <h2 class="heading-font text-4xl font-bold mb-6 text-gray-900">Master Every Subject</h2>
+        <p class="text-gray-500 mb-20">Specialized curriculum for Grades 6-12</p>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="card-interactive border border-gray-200 p-10 rounded-[40px]">
+                <div class="w-16 h-16 bg-orange-50 text-[var(--accent)] rounded-2xl flex items-center justify-center text-3xl mb-8 mx-auto">
+                    <i class="fa-solid fa-calculator"></i>
+                </div>
+                <h3 class="font-bold text-xl mb-4">Mathematics</h3>
+                <p class="text-xs text-gray-500 leading-relaxed">Numbers battles, quiz duels, and ratio proportion concepts.</p>
+            </div>
+            <div class="card-interactive border border-gray-200  p-10 rounded-[40px]">
+                <div class="w-16 h-16 bg-green-50 text-[var(--primary)] rounded-2xl flex items-center justify-center text-3xl mb-8 mx-auto">
+                    <i class="fa-solid fa-flask-vial"></i>
+                </div>
+                <h3 class="font-bold text-xl mb-4">Science</h3>
+                <p class="text-xs text-gray-500 leading-relaxed">Current circuits, lab test-tube reactions, and equations. </p>
+            </div>
+            <div class="card-interactive border border-gray-200 p-10 rounded-[40px]">
+                <div class="w-16 h-16 bg-blue-50 text-[var(--secondary)] rounded-2xl flex items-center justify-center text-3xl mb-8 mx-auto">
+                    <i class="fa-solid fa-dna"></i>
+                </div>
+                <h3 class="font-bold text-xl mb-4">Biology</h3>
+                <p class="text-xs text-gray-500 leading-relaxed">Cell parts, puzzles, and interactive matching.</p>
+            </div>
+            <div class="card-interactive border border-gray-200 p-10 rounded-[40px]">
+                <div class="w-16 h-16 bg-purple-50 text-purple-500 rounded-2xl flex items-center justify-center text-3xl mb-8 mx-auto">
+                    <i class="fa-solid fa-brain"></i>
+                </div>
+                <h3 class="font-bold text-xl mb-4">Logic</h3>
+                <p class="text-xs text-gray-500 leading-relaxed">Patterns, series, and complex flowchart challenges.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="tech" class="py-32 bg-gray-50 relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-20 items-center">
+        <div class="bg-white p-8 rounded-[40px] shadow-2xl border-2 border-gray-100">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-14 h-14 bg-[var(--accent)] rounded-full flex items-center justify-center text-white shadow-lg text-2xl">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div>
+                    <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Built-in Mentor</h4>
+                    <p class="font-bold text-gray-800">AI Subject Chatbot</p>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <div class="bg-gray-50 p-4 rounded-2xl text-xs text-gray-600 border border-gray-100">How do I calculate the area of a circle?</div>
+                <div class="bg-green-50 p-4 rounded-2xl text-xs text-[var(--primary)] font-bold border border-green-100 flex items-start gap-3">
+                    <i class="fa-solid fa-check mt-1"></i>
+                    The area is calculated using the formula: πr²...
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h2 class="heading-font text-5xl font-black mb-10 text-gray-900 leading-tight">
+                Technology for <span class="text-[var(--primary)]">Rural</span> Connectivity.
+            </h2>
+            <div class="space-y-8">
+                <div class="flex items-start gap-6">
+                    <div class="w-12 h-12 bg-white rounded-2xl shadow-md flex items-center justify-center text-[var(--secondary)]"><i class="fa-solid fa-wifi" style="color:red;"></i></div>
+                    <div>
+                        <h4 class="font-bold mb-2">Offline Access</h4>
+                        <p class="text-xs text-gray-500">Optimized for limited connectivity schools.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-6">
+                    <div class="w-12 h-12 bg-white rounded-2xl shadow-md flex items-center justify-center text-[var(--accent)]"><i class="fa-solid fa-user-shield"></i></div>
+                    <div>
+                        <h4 class="font-bold mb-2">Mentor Fallback</h4>
+                        <p class="text-xs text-gray-500">Add parents as guardians if teachers are unavailable.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-6">
+                    <div class="w-12 h-12 bg-white rounded-2xl shadow-md flex items-center justify-center text-[var(--primary)]"><i class="fa-solid fa-chart-line"></i></div>
+                    <div>
+                        <h4 class="font-bold mb-2">Performance Analytics </h4>
+                        <p class="text-xs text-gray-500">Tracking lagging students and engagement metrics.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

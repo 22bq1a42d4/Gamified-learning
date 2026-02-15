@@ -1,0 +1,151 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}RuralEdu | Gamified Learning Platform{% endblock %}</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        :root {
+            --primary: #2E8B57; /* Academic Green */
+            --secondary: #4C6EF5; /* Learning Blue */
+            --accent: #FFA502; /* XP Gold */
+            --bg-neutral: #F8F9FA;
+            --surface: #FFFFFF;
+            --border-soft: #E9ECEF;
+            --text-main: #212529;
+            --text-muted: #6C757D;
+        }
+
+        /* High-End Scrollbar */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg-neutral); }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--primary), var(--secondary));
+            border-radius: 20px;
+            border: 3px solid var(--bg-neutral);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-neutral);
+            color: var(--text-main);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        .heading-font { font-family: 'Poppins', sans-serif; }
+
+        /* Multi-Layer Background Mix */
+        .mesh-gradient {
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(46, 139, 87, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(76, 110, 245, 0.05) 0px, transparent 50%);
+        }
+
+        /* Advanced Button Styles */
+        .btn-glow {
+            background: linear-gradient(135deg, var(--primary) 0%, #1e5c3a 100%);
+            color: white;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 20px -10px var(--primary);
+            font-weight: 700;
+        }
+
+        .btn-glow:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 20px 30px -10px var(--primary), 0 0 15px rgba(255, 165, 2, 0.4);
+            filter: brightness(1.1);
+        }
+
+        /* Interactive Card System */
+        .card-interactive {
+            background: var(--surface);
+            border: 2px solid transparent;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card-interactive:hover {
+            border-color: var(--secondary);
+            transform: translateY(-12px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Top Navbar Glassmorphism */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(15px) saturate(180%);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        /* Animations */
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+    </style>
+</head>
+<body class="mesh-gradient min-h-screen flex flex-col">
+
+    <nav class="glass-nav sticky top-0 z-[100] px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="/" class="flex items-center gap-3 group">
+                <div class="bg-[var(--primary)] p-2 rounded-xl group-hover:rotate-12 transition-transform duration-300">
+                    <i class="fa-solid fa-graduation-cap text-white text-2xl"></i>
+                </div>
+                <span class="heading-font text-3xl font-black tracking-tight text-gray-900">
+                    Rural<span class="text-[var(--accent)]">Edu</span>
+                </span>
+            </a>
+
+            <div class="hidden lg:flex items-center gap-10">
+                <a href="/" class="font-bold text-sm uppercase tracking-widest hover:text-[var(--primary)]">Home</a>
+                <a href="#features" class="font-bold text-sm uppercase tracking-widest hover:text-[var(--primary)]">Modules</a>
+                <a href="#tech" class="font-bold text-sm uppercase tracking-widest hover:text-[var(--primary)]">Tech</a>
+                <div class="h-6 w-[2px] bg-gray-200 mx-2"></div>
+                <a href="{% url 'accounts:login' %}" class="text-sm font-black hover:text-[var(--secondary)]">LOGIN</a>
+                <a href="{% url 'accounts:signup' %}" class="btn-glow px-8 py-3 rounded-2xl text-[12px]">JOIN PLATFORM</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-white border-t border-gray-100 pt-20 pb-10">
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-12 mb-16">
+            <div>
+                <h3 class="heading-font text-2xl font-bold mb-6 text-[var(--primary)]">RuralEdu Platform</h3>
+                <p class="text-gray-500 leading-relaxed text-sm">
+                    A specialized gamified ecosystem for Grades 6-12, designed to make STEM subjects interactive and accessible in rural environments. [cite: 15, 24]
+                </p>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6">Subject Hubs [cite: 31, 82]</h4>
+                <ul class="text-gray-500 text-sm space-y-3">
+                    <li><i class="fa-solid fa-chevron-right text-[var(--accent)] mr-2"></i> Mathematics</li>
+                    <li><i class="fa-solid fa-chevron-right text-[var(--accent)] mr-2"></i> Science (Phy + Chem)</li>
+                    <li><i class="fa-solid fa-chevron-right text-[var(--accent)] mr-2"></i> Biology (Botany + Zoology)</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6">Support & Links</h4>
+                <div class="flex gap-4 mb-6">
+                    <a href="#" class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center hover:bg-[var(--secondary)] hover:text-white transition-all"><i class="fa-brands fa-github"></i></a>
+                    <a href="#" class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center hover:bg-[var(--secondary)] hover:text-white transition-all"><i class="fa-brands fa-linkedin"></i></a>
+                </div>
+                <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">SIH25048 • B.Tech Final Year Project</p>
+            </div>
+        </div>
+        <div class="text-center text-[10px] font-black text-gray-300 uppercase tracking-[0.5em]">
+            &copy; 2026 Gamified Learning Platform • Empowering Rural Education
+        </div>
+    </footer>
+
+</body>
+</html>

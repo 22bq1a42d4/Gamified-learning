@@ -1,0 +1,189 @@
+{% extends "base_auth.html" %}
+{% load static %}
+
+{% block title %}Audit | {{ institute.name }} | RuralEdu{% endblock %}
+{% block breadcrumb %}Admin / Institutes / {{ institute.code }}{% endblock %}
+{% block page_title %}Institute Master Audit{% endblock %}
+
+{% block content %}
+<style>
+    /* Profile Header Card */
+    .profile-banner {
+        background: white;
+        padding: 3rem;
+        border-radius: 40px;
+        border: 2px solid white;
+        box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .badge-icon-large {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: var(--primary);
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    /* Professional Grid Cards */
+    .data-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 30px;
+        border: 1px solid var(--border-soft);
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.03);
+        transition: transform 0.3s ease;
+    }
+
+    .data-card:hover { transform: translateY(-5px); }
+
+    .member-item {
+        padding: 1rem 1.5rem;
+        background: #f8f9fa;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border: 1px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .member-item:hover {
+        background: white;
+        border-color: var(--secondary);
+        box-shadow: 0 8px 20px rgba(76, 110, 245, 0.1);
+    }
+
+    .counter-pill {
+        background: var(--primary);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 10px;
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .status-active { color: #28a745; font-weight: 800; }
+    .status-inactive { color: #dc3545; font-weight: 800; }
+</style>
+
+<div class="animate-in fade-in slide-in-from-right-6 duration-700">
+    
+    <div class="profile-banner">
+        <div class="flex items-center gap-8">
+            <div class="badge-icon-large">
+                <i class="fa-solid fa-landmark-flag"></i>
+            </div>
+            <div>
+                <h1 class="heading-font text-4xl font-black text-gray-900 mb-1">{{ institute.name }}</h1>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm font-bold text-[var(--secondary)] uppercase tracking-widest">{{ institute.code }}</span>
+                    <span class="text-gray-300">|</span>
+                    <span class="text-sm font-medium text-gray-500"><i class="fa-solid fa-location-dot mr-1"></i> {{ institute.city }}, {{ institute.state }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="flex gap-4">
+            <a href="{% url 'institutes:institute_toggle' institute.id %}" class="btn-glow px-8 py-4 rounded-2xl text-xs flex items-center gap-2">
+                <i class="fa-solid fa-power-off"></i> TOGGLE STATUS
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white p-10 rounded-[40px] shadow-sm border border-gray-100 mb-10">
+        <div class="grid md:grid-cols-3 gap-10">
+            <div class="space-y-1">
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Current Status</p>
+                <p class="text-lg">
+                    {% if institute.is_active %}
+                        <span class="status-active"><i class="fa-solid fa-circle-check mr-1"></i> Operational</span>
+                    {% else %}
+                        <span class="status-inactive"><i class="fa-solid fa-circle-pause mr-1"></i> Suspended</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="md:col-span-2 space-y-1">
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Physical Address</p>
+                <p class="text-sm text-gray-600 font-medium leading-relaxed">{{ institute.address|default:"No address details provided for this registry." }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8 mb-10">
+        <div class="data-card">
+            <div class="flex items-center gap-4 mb-2">
+                <div class="w-10 h-10 bg-green-50 text-[var(--primary)] rounded-xl flex items-center justify-center"><i class="fa-solid fa-user-graduate"></i></div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Pioneers</p>
+            </div>
+            <h2 class="heading-font text-4xl font-black text-gray-900">{{ student_count }}</h2>
+        </div>
+        <div class="data-card">
+            <div class="flex items-center gap-4 mb-2">
+                <div class="w-10 h-10 bg-blue-50 text-[var(--secondary)] rounded-xl flex items-center justify-center"><i class="fa-solid fa-chalkboard-user"></i></div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Mentors</p>
+            </div>
+            <h2 class="heading-font text-4xl font-black text-gray-900">{{ teacher_count }}</h2>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8">
+        
+        <div class="bg-white p-10 rounded-[40px] shadow-sm border border-gray-100">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="heading-font text-xl font-bold">Student Registry</h3>
+                <i class="fa-solid fa-users text-gray-200 text-2xl"></i>
+            </div>
+            <div class="space-y-3">
+                {% for student in students %}
+                <div class="member-item">
+                    <span class="counter-pill">{{ forloop.counter }}</span>
+                    <div class="flex flex-col">
+                        <span class="text-sm font-bold text-gray-800">{{ student.email }}</span>
+                        <span class="text-[9px] font-black text-gray-400 uppercase">Class {{ student.class_studying }} • {{ student.stream|default:"General" }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-10 opacity-40">
+                    <i class="fa-solid fa-folder-open text-4xl mb-4"></i>
+                    <p class="text-xs font-bold uppercase tracking-widest">No Registered Students</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="bg-white p-10 rounded-[40px] shadow-sm border border-gray-100">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="heading-font text-xl font-bold">Mentor Registry</h3>
+                <i class="fa-solid fa-user-tie text-gray-200 text-2xl"></i>
+            </div>
+            <div class="space-y-3">
+                {% for teacher in teachers %}
+                <div class="member-item">
+                    <div class="w-8 h-8 rounded-full bg-[var(--secondary)] text-white flex items-center justify-center text-[10px] font-bold">
+                        {{ teacher.email|slice:":1"|upper }}
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-sm font-bold text-gray-800">{{ teacher.email }}</span>
+                        <span class="text-[9px] font-black text-gray-400 uppercase">Certified Mentor</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-10 opacity-40">
+                    <i class="fa-solid fa-folder-open text-4xl mb-4"></i>
+                    <p class="text-xs font-bold uppercase tracking-widest">No Registered Mentors</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

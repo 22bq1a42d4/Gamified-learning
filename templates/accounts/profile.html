@@ -1,0 +1,35 @@
+{% extends "base_auth.html" %}
+
+{% block title %}My Profile | RuralEdu{% endblock %}
+{% block breadcrumb %}Profile{% endblock %}
+{% block page_title %}Account Settings{% endblock %}
+
+{% block content %}
+
+<div class="profile-container">
+
+    <div class="profile-card">
+        <h3 class="profile-title">Profile Information</h3>
+
+        <form method="post" class="profile-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="id_email">Email Address</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <div class="error-text">
+                        {{ form.email.errors }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn-primary">
+                Update Profile
+            </button>
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,224 @@
+{% extends "base_auth.html" %}
+{% load static %}
+
+{% block title %}Active Mission | {{ game.title }}{% endblock %}
+{% block breadcrumb %}Mission / {{ game.title }}{% endblock %}
+{% block page_title %}Operational Interface{% endblock %}
+
+{% block content %}
+<style>
+    /* Question Card Styling */
+    .mission-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 2px solid #ffffff;
+        border-radius: 35px;
+        padding: 2.5rem;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease;
+    }
+
+    .mission-card:focus-within {
+        transform: scale(1.01);
+        border-color: var(--secondary);
+        box-shadow: 0 20px 40px -15px rgba(76, 110, 245, 0.1);
+    }
+
+    /* Custom Radio Styling */
+    .option-container {
+        display: block;
+        position: relative;
+        padding: 1.2rem 1.5rem 1.2rem 4rem;
+        margin-bottom: 12px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        background: #f8f9fa;
+        border-radius: 20px;
+        border: 2px solid transparent;
+        transition: all 0.2s ease;
+        user-select: none;
+    }
+
+    .option-container:hover {
+        background: #f1f3f5;
+        transform: translateX(10px);
+    }
+
+    .option-container input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .checkmark {
+        position: absolute;
+        top: 50%;
+        left: 1.5rem;
+        transform: translateY(-50%);
+        height: 24px;
+        width: 24px;
+        background-color: white;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .option-container:hover input ~ .checkmark {
+        border-color: var(--secondary);
+    }
+
+    .option-container input:checked ~ .checkmark {
+        background-color: var(--primary);
+        border-color: var(--primary);
+        box-shadow: 0 0 10px rgba(46, 139, 87, 0.4);
+    }
+
+    .option-container input:checked {
+        border-color: var(--primary);
+    }
+    
+    .option-container:has(input:checked) {
+        background: white;
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    /* Submit Button Master */
+    .btn-submit-mission {
+        background: linear-gradient(135deg, var(--primary) 0%, #1e5c3a 100%);
+        color: white;
+        padding: 1.5rem 4rem;
+        border-radius: 25px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        display: inline-flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.4s ease;
+        box-shadow: 0 10px 25px rgba(46, 139, 87, 0.3);
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-submit-mission:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(46, 139, 87, 0.4);
+    }
+
+    /* Fixed Progress Header */
+    .mission-sticky-header {
+        position: sticky;
+        top: 80px;
+        z-index: 50;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        margin: -40px -40px 40px -40px;
+        padding: 20px 40px;
+        border-bottom: 1px solid var(--border-soft);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+</style>
+
+<div class="animate-in fade-in duration-700">
+    
+    <div class="mission-sticky-header">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-orange-50 text-[var(--accent)] rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-crosshairs"></i>
+            </div>
+            <div>
+                <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active Mission</h4>
+                <p class="font-bold text-gray-800">{{ game.title }}</p>
+            </div>
+        </div>
+        <div class="text-right">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Potential Reward</p>
+            <p class="font-black text-[var(--primary)]">+{{ game.xp_reward }} XP</p>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto py-10">
+        <form method="POST" id="missionForm">
+            {% csrf_token %}
+
+            {% for question in questions %}
+            <div class="mission-card">
+                <div class="flex items-start gap-5 mb-8">
+                    <span class="w-10 h-10 rounded-full bg-gray-900 text-white flex-shrink-0 flex items-center justify-center font-black text-sm shadow-lg">
+                        {{ forloop.counter }}
+                    </span>
+                    <h3 class="heading-font text-xl font-bold text-gray-800 leading-relaxed pt-1">
+                        {{ question.question_text }}
+                    </h3>
+                </div>
+
+                <div class="space-y-4">
+                    <label class="option-container">
+                        {{ question.option_a }}
+                        <input type="radio" name="{{ question.id }}" value="A" required>
+                        <span class="checkmark"></span>
+                    </label>
+
+                    <label class="option-container">
+                        {{ question.option_b }}
+                        <input type="radio" name="{{ question.id }}" value="B">
+                        <span class="checkmark"></span>
+                    </label>
+
+                    <label class="option-container">
+                        {{ question.option_c }}
+                        <input type="radio" name="{{ question.id }}" value="C">
+                        <span class="checkmark"></span>
+                    </label>
+
+                    <label class="option-container">
+                        {{ question.option_d }}
+                        <input type="radio" name="{{ question.id }}" value="D">
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="text-center py-10">
+                <button type="submit" class="btn-submit-mission">
+                    FINALIZE MISSION <i class="fa-solid fa-flag-checkered"></i>
+                </button>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-6">
+                    Ensure all objectives are met before final submission
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Visual feedback for selection
+    const options = document.querySelectorAll('.option-container');
+    options.forEach(opt => {
+        opt.addEventListener('click', () => {
+            // Remove selection from siblings in the same card
+            const card = opt.closest('.mission-card');
+            card.querySelectorAll('.option-container').forEach(sibling => {
+                sibling.style.transform = 'translateX(0)';
+            });
+            opt.style.transform = 'translateX(15px)';
+        });
+    });
+
+    // Prevent accidental form submission on Enter key
+    window.addEventListener('keydown', function(e) {
+        if (e.keyIdentifier == 'U+000A' || e.keyIdentifier == 'Enter' || e.keyCode == 13) {
+            if (e.target.nodeName == 'INPUT' && e.target.type == 'text') {
+                e.preventDefault();
+                return false;
+            }
+        }
+    }, true);
+</script>
+{% endblock %}
