@@ -1,0 +1,165 @@
+{% extends "base_auth.html" %}
+{% load static %}
+
+{% block title %}My Quests | RuralEdu STEM{% endblock %}
+{% block breadcrumb %}Student / My Subjects{% endblock %}
+{% block page_title %}Choose Your Learning Quest{% endblock %}
+
+{% block content %}
+<style>
+    /* Subject Card Quest Theme */
+    .quest-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px) saturate(180%);
+        border: 2px solid #ffffff;
+        border-radius: 40px;
+        padding: 2.5rem;
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+    }
+
+    .quest-card:hover {
+        transform: translateY(-15px) scale(1.02);
+        border-color: var(--secondary);
+        box-shadow: 0 40px 80px -20px rgba(76, 110, 245, 0.2);
+    }
+
+    /* Subject Specific Icon Box */
+    .quest-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        background: #f8f9fa;
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.2rem;
+        margin-bottom: 2rem;
+        color: var(--primary);
+        transition: all 0.4s ease;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .quest-card:hover .quest-icon-wrapper {
+        background: var(--primary);
+        color: white;
+        transform: rotate(-10deg) scale(1.1);
+        box-shadow: 0 10px 20px rgba(46, 139, 87, 0.3);
+    }
+
+    /* Mastery Progress System */
+    .mastery-container {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #f0f2f5;
+    }
+
+    .mastery-track {
+        height: 10px;
+        background: #f0f2f5;
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 0.75rem;
+    }
+
+    .mastery-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        border-radius: 20px;
+        box-shadow: 0 0 15px rgba(46, 139, 87, 0.2);
+    }
+
+    .badge-pill {
+        position: absolute;
+        top: 30px;
+        right: 30px;
+        padding: 6px 14px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .badge-stream { background: #f0f4ff; color: var(--secondary); }
+    .badge-grade { background: #fff8e1; color: var(--accent); }
+</style>
+
+<div class="animate-in fade-in slide-in-from-bottom-8 duration-700">
+    
+    <div class="bg-white p-10 rounded-[50px] shadow-sm border border-gray-100 mb-12 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="flex items-center gap-6">
+            <div class="w-16 h-16 bg-green-50 text-[var(--primary)] rounded-2xl flex items-center justify-center text-2xl">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div>
+                <h3 class="heading-font text-2xl font-black text-gray-900">Academic Curriculum</h3>
+                <p class="text-sm text-gray-400 font-bold uppercase tracking-widest">
+                    Mapped for Class {{ user.academic_class.grade }} 
+                    {% if user.stream %} • {{ user.stream.name }} Pathway {% endif %}
+                </p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 bg-gray-50 px-6 py-3 rounded-2xl">
+            <i class="fa-solid fa-school text-gray-300"></i>
+            <span class="text-xs font-black text-gray-500 uppercase">{{ user.institute.name }}</span>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+        {% for subject in subjects %}
+        <div class="quest-card">
+            {% if subject.stream %}
+                <span class="badge-pill badge-stream">{{ subject.stream.name }}</span>
+            {% else %}
+                <span class="badge-pill badge-grade">CLASS {{ subject.academic_class.grade }}</span>
+            {% endif %}
+
+            <div class="quest-icon-wrapper">
+                {% if 'Math' in subject.name %}
+                    <i class="fa-solid fa-calculator"></i>
+                {% elif 'Science' in subject.name or 'Physics' in subject.name %}
+                    <i class="fa-solid fa-atom"></i>
+                {% elif 'Bio' in subject.name %}
+                    <i class="fa-solid fa-dna"></i>
+                {% elif 'Logic' in subject.name %}
+                    <i class="fa-solid fa-brain"></i>
+                {% else %}
+                    <i class="fa-solid fa-book-sparkles"></i>
+                {% endif %}
+            </div>
+
+            <h3 class="heading-font text-2xl font-black text-gray-800 mb-2">{{ subject.name }}</h3>
+            <p class="text-xs text-gray-400 font-medium leading-relaxed">
+                Dive into interactive challenges and earn XP by mastering specific topics in this module.
+            </p>
+
+            <div class="mastery-container">
+                <div class="flex justify-between items-end mb-2">
+                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-tighter">Module Mastery</span>
+                    <span class="text-xs font-bold text-[var(--primary)]">30%</span> </div>
+                <div class="mastery-track">
+                    <div class="mastery-fill" style="width: 30%;"></div>
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <a href="#" class="btn-glow w-full py-5 rounded-3xl text-[11px] flex items-center justify-center gap-3">
+                    ENTER QUEST <i class="fa-solid fa-circle-play text-lg"></i>
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full py-32 text-center bg-white rounded-[60px] border-4 border-dashed border-gray-50">
+            <div class="w-24 h-24 bg-gray-50 text-gray-200 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
+                <i class="fa-solid fa-box-open"></i>
+            </div>
+            <h3 class="heading-font text-2xl font-black text-gray-400">Your syllabus is currently empty.</h3>
+            <p class="text-sm text-gray-300 max-w-md mx-auto mt-2">Subjects will appear here once your Institute Admin maps them to your class grade.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

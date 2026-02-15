@@ -1,0 +1,196 @@
+{% extends "base_auth.html" %}
+{% load static %}
+
+{% block title %}Teacher Dashboard | RuralEdu STEM Quest{% endblock %}
+{% block breadcrumb %}Teacher / Command Center{% endblock %}
+{% block page_title %}Class Intelligence Panel{% endblock %}
+
+{% block content %}
+<style>
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    background: var(--surface);
+    padding: 30px;
+    border-radius: 30px;
+    border: 2px solid white;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.4s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px -15px rgba(46, 139, 87, 0.1);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.section-card {
+    background: white;
+    padding: 40px;
+    border-radius: 40px;
+    margin-bottom: 40px;
+    box-shadow: 0 15px 35px -15px rgba(0,0,0,0.08);
+}
+
+.progress-track {
+    height: 12px;
+    background: #f1f3f5;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 20px;
+    transition: width 1s ease;
+}
+
+.table-container {
+    background: white;
+    padding: 35px;
+    border-radius: 35px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    text-align: left;
+    padding: 14px;
+    background: #f8f9fa;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+td {
+    padding: 14px;
+    border-top: 1px solid #f1f3f5;
+}
+</style>
+
+<div class="animate-in fade-in duration-1000">
+
+    <!-- Top Stats -->
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#eef2ff; color:var(--secondary);">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-400 uppercase">Total Students</p>
+                <h3 class="text-2xl font-black">{{ total_students }}</h3>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fff8e1; color:var(--accent);">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-400 uppercase">Average XP</p>
+                <h3 class="text-2xl font-black">{{ avg_xp }}</h3>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef2f2; color:#ef4444;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-400 uppercase">Lagging Students</p>
+                <h3 class="text-2xl font-black">{{ lagging_count }}</h3>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#f0fdf4; color:var(--primary);">
+                <i class="fa-solid fa-clock"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-400 uppercase">Engagement Time</p>
+                <h3 class="text-2xl font-black">{{ total_engagement_time }} mins</h3>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Class Performance Overview -->
+    <div class="section-card">
+        <h3 class="text-xl font-black mb-6">Class Performance Overview</h3>
+
+        {% if avg_xp > 0 %}
+        <p class="text-sm text-gray-500 mb-2">Overall Class XP Health</p>
+        <div class="progress-track">
+            <div class="progress-fill" style="width: {{ avg_xp|floatformat:0 }}%;"></div>
+        </div>
+        {% else %}
+        <p class="text-gray-400">No performance data available yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- Top Students Table -->
+    <div class="table-container">
+        <h3 class="text-xl font-black mb-6">Top Performers</h3>
+
+        {% if top_students %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Total XP</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for xp in top_students %}
+                <tr>
+                    <td>{{ xp.student.email }}</td>
+                    <td>{{ xp.total_xp }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p class="text-gray-400">No students assigned yet.</p>
+        {% endif %}
+    </div>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const bars = document.querySelectorAll(".progress-fill");
+    bars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = "0%";
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 400);
+    });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base_auth.html" %}
+{% block title %}Student Audit{% endblock %}
+
+{% block content %}
+<div class="p-10 bg-white rounded-3xl shadow">
+    <h2 class="text-2xl font-black mb-6">Audit Profile</h2>
+
+    <p><strong>Email:</strong> {{ student.email }}</p>
+    <p><strong>Class:</strong> {{ student.class_studying }}</p>
+    <p><strong>Total XP:</strong> {{ xp_profile.total_xp }}</p>
+    <p><strong>Login Count:</strong> {{ student.login_count }}</p>
+</div>
+{% endblock %}

@@ -1,0 +1,211 @@
+{% extends "base_public.html" %}
+{% load static %}
+
+{% block title %}Signup | RuralEdu Quest{% endblock %}
+
+{% block content %}
+<style>
+    /* Full Page Centering Logic */
+    .auth-page-container {
+        min-height: calc(100vh - 80px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1.5rem;
+    }
+
+    /* Glassmorphism Card Style */
+    .glass-auth-card {
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(20px) saturate(180%);
+        border: 2px solid #ffffff;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        border-radius: 40px;
+        width: 100%;
+        max-width: 550px;
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-auth-card:hover {
+        transform: translateY(-8px);
+    }
+
+    /* Icon Styling Aligned with Project Identity */
+    .icon-box {
+        background: linear-gradient(135deg, #4C6EF5 0%, #2E8B57 100%);
+        width: 80px;
+        height: 80px;
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 10px 20px rgba(76, 110, 245, 0.2);
+    }
+
+    /* Input & Select Field Styling */
+    .fancy-input {
+        background: #F8F9FA;
+        border: 2px solid transparent;
+        padding: 1rem 1.25rem;
+        border-radius: 18px;
+        width: 100%;
+        transition: all 0.3s ease;
+        outline: none;
+        font-weight: 500;
+        color: #212529;
+        appearance: none; /* For cleaner select dropdowns */
+    }
+
+    .fancy-input:focus {
+        background: #ffffff;
+        border-color: #2E8B57;
+        box-shadow: 0 0 15px rgba(46, 139, 87, 0.1);
+    }
+
+    .input-label {
+        font-size: 10px;
+        font-weight: 800;
+        color: #9ca3af;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        margin-bottom: 0.5rem;
+        display: block;
+        padding-left: 0.5rem;
+    }
+
+    /* Submit Button Styling */
+    .btn-create {
+        background: #2E8B57;
+        color: white;
+        width: 100%;
+        padding: 1.1rem;
+        border-radius: 18px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        margin-top: 1.5rem;
+    }
+
+    .btn-create:hover {
+        background: #1e5c3a;
+        box-shadow: 0 10px 20px rgba(46, 139, 87, 0.3);
+        transform: scale(1.02);
+    }
+
+    /* Animation for dynamic fields */
+    .dynamic-field-wrapper {
+        animation: slideDown 0.4s ease-out;
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="auth-page-container mesh-gradient">
+    <div class="glass-auth-card p-10 md:p-14 animate-in fade-in zoom-in duration-500">
+        
+        <div class="text-center">
+            <div class="icon-box">
+                <i class="fa-solid fa-user-plus text-white text-3xl"></i>
+            </div>
+            <h2 class="heading-font text-4xl font-bold text-gray-900 mb-2">Create Account</h2>
+            <p class="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-10">Select your role to begin</p>
+        </div>
+
+        <form method="POST" class="space-y-5">
+            {% csrf_token %}
+
+            <div>
+                <label class="input-label">Email Address</label>
+                <input type="email" name="email" required class="fancy-input" placeholder="you@ruraledu.com">
+            </div>
+
+            <div>
+                <label class="input-label">Password</label>
+                <input type="password" name="password" required class="fancy-input" placeholder="••••••••">
+            </div>
+
+            <div>
+                <label class="input-label">Platform Role</label>
+                <div class="relative">
+                    <select name="role" id="roleSelect" required class="fancy-input cursor-pointer">
+                        <option value="" disabled selected>Choose Path...</option>
+                        <option value="teacher">Mentor (Teacher)</option>
+                        <option value="student">Pioneer (Student)</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-400">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="studentFields" style="display:none;" class="dynamic-field-wrapper space-y-5">
+                <div>
+                    <label class="input-label">Grade (6–12)</label>
+                    <div class="relative">
+                        <select name="class_studying" id="classSelect" class="fancy-input cursor-pointer">
+                            <option value="" disabled selected>Select Class</option>
+                            <option value="6">Class 6</option><option value="7">Class 7</option>
+                            <option value="8">Class 8</option><option value="9">Class 9</option>
+                            <option value="10">Class 10</option><option value="11">Class 11</option>
+                            <option value="12">Class 12</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-400">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="streamField" style="display:none;" class="dynamic-field-wrapper">
+                    <label class="input-label">Academic Stream</label>
+                    <div class="relative">
+                        <select name="stream" class="fancy-input cursor-pointer">
+                            <option value="" disabled selected>Choose Stream...</option>
+                            <option value="MPC">MPC (Math / Physics / Chem)</option>
+                            <option value="BIPC">BIPC (Biology / Physics / Chem)</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-400">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-create">
+                Create Identity <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="mt-10 pt-8 border-t border-gray-100 text-center">
+            <p class="text-sm font-medium text-gray-500">
+                Already a member? 
+                <a href="{% url 'accounts:login' %}" class="text-[#2E8B57] font-black uppercase tracking-widest text-[11px] ml-2 hover:underline">
+                    Login Here
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Handles dynamic display of student specific fields
+    document.getElementById("roleSelect").onchange = function() {
+        document.getElementById("studentFields").style.display = this.value === "student" ? "block" : "none";
+    };
+    
+    // Handles dynamic display of streams for classes 11 & 12
+    document.getElementById("classSelect").onchange = function() {
+        document.getElementById("streamField").style.display = (this.value === "11" || this.value === "12") ? "block" : "none";
+    };
+</script>
+{% endblock %}

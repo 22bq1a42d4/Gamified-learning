@@ -1,0 +1,509 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Quest Command | RuralEdu STEM{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        :root {
+            --primary: #2E8B57;    /* Academic Green */
+            --secondary: #4C6EF5;  /* Learning Blue */
+            --accent: #FFA502;     /* XP Gold */
+            --bg-light: #F8F9FA;
+            --surface: #FFFFFF;
+            --border-soft: #E9ECEF;
+            --text-main: #212529;
+            --text-muted: #6C757D;
+            --sidebar-width: 280px;
+            --sidebar-collapsed: 85px;
+        }
+
+        /* Premium Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-light); }
+        ::-webkit-scrollbar-thumb { 
+            background: #cbd5e0; 
+            border-radius: 10px; 
+        }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- SIDEBAR SYSTEM --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--surface);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-soft);
+            z-index: 1001;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-brand {
+            padding: 30px 24px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+            overflow: hidden;
+        }
+
+        .brand-icon {
+            background: linear-gradient(135deg, var(--primary), #3da369);
+            color: white;
+            min-width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 8px 15px rgba(46, 139, 87, 0.2);
+        }
+
+        .brand-name {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--text-main);
+            white-space: nowrap;
+        }
+
+        .nav-label {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin: 25px 0 10px 28px;
+            white-space: nowrap;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 14px 24px;
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            position: relative;
+            margin: 2px 12px;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+
+        .nav-link i {
+            font-size: 1.2rem;
+            min-width: 32px;
+            color: var(--text-muted);
+            transition: all 0.3s;
+        }
+
+        .nav-link span {
+            transition: opacity 0.3s;
+        }
+
+        .nav-link:hover {
+            background: rgba(46, 139, 87, 0.05);
+            color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .nav-link:hover i { color: var(--primary); }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 10px 20px rgba(46, 139, 87, 0.15);
+        }
+
+        .nav-link.active i { color: white; }
+        
+        /* XP Notch for active state */
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 25%;
+            height: 50%;
+            width: 4px;
+            background: var(--accent);
+            border-radius: 4px 0 0 4px;
+        }
+
+        /* --- HEADER SYSTEM --- */
+        .main-wrapper {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: margin 0.4s;
+            min-width: 0;
+        }
+
+        .top-header {
+            height: 80px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-soft);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .breadcrumb {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .breadcrumb span { color: var(--primary); }
+
+        .page-title {
+            font-family: 'Poppins';
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
+        }
+
+        /* User Pill Refined */
+        .user-pill {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 14px;
+            background: #fff;
+            border: 1px solid var(--border-soft);
+            border-radius: 50px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .user-pill:hover {
+            border-color: var(--secondary);
+            box-shadow: 0 5px 15px rgba(76, 110, 245, 0.1);
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--secondary), #748ffc);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+            box-shadow: 0 4px 8px rgba(76, 110, 245, 0.2);
+        }
+
+        .notif-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: white;
+            border: 1px solid var(--border-soft);
+            color: var(--text-muted);
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .notif-btn:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .badge-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 18px;
+            height: 18px;
+            background: var(--accent);
+            border: 3px solid white;
+            border-radius: 50%;
+            font-size: 8px;
+            color: white;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Content Area */
+        .content-hub {
+            padding: 40px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 20px;
+            border-top: 1px solid var(--border-soft);
+        }
+
+        .logout-pill {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            background: #fff5f5;
+            color: #ff5252;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .logout-pill:hover {
+            background: #ff5252;
+            color: white;
+            box-shadow: 0 8px 15px rgba(255, 82, 82, 0.2);
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); }
+            .main-wrapper { margin-left: 0; }
+        }
+        /* Container */
+        .profile-container {
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        /* Card */
+        .profile-card {
+            width: 100%;
+            max-width: 650px;
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+            transition: 0.3s ease;
+        }
+
+        .profile-card:hover {
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Title */
+        .profile-title {
+            margin-bottom: 25px;
+            font-size: 22px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Form group */
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Label */
+        .form-group label {
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #444;
+        }
+
+        /* Input field */
+        .form-group input {
+            padding: 12px 14px;
+            border-radius: 8px;
+            border: 1px solid #dcdcdc;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        /* Input focus effect */
+        .form-group input:focus {
+            border-color: #2E8B57;
+            box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.15);
+        }
+
+        /* Error text */
+        .error-text {
+            margin-top: 5px;
+            font-size: 13px;
+            color: #e74c3c;
+        }
+
+        /* Button */
+        .btn-primary {
+            background: #2E8B57;
+            color: #fff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: #256f46;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <aside class="sidebar">
+        <a href="#" class="sidebar-brand">
+            <div class="brand-icon">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div class="brand-name">RuralEdu</div>
+        </a>
+
+        <nav class="flex-grow overflow-y-auto">
+            <span class="nav-label">Main Quest</span>
+            
+            {% if user.role == "student" %}
+                <a href="{% url 'accounts:student_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-layer-group"></i> <span>Dashboard</span>
+                </a>
+                <a href="{% url 'academics:student_subjects' %}" class="nav-link {% if 'subjects' in request.path %}active{% endif %}">
+                    <i class="fas fa-book"></i> <span>My Subjects</span>
+                </a>
+                <a href="{% url 'games:game_list' %}" class="nav-link {% if 'games' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-gamepad"></i> <span>STEM Games</span>
+                </a>
+                <a href="{% url 'gamification:student_gamification_dashboard' %}" class="nav-link {% if 'gamification' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-award"></i> <span>Achievements</span>
+                </a>
+                <a href="{% url 'chatbot:chat_page' %}" class="nav-link {% if 'chatbot' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-robot"></i> <span>AI Mentor</span>
+                </a>
+                <a href="{% url 'analytics:student' %}" class="nav-link {% if 'analytics' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-chart-line"></i> <span>Performance</span>
+                </a>
+
+            {% elif user.role == "teacher" %}
+                <a href="{% url 'accounts:teacher_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-chalkboard-user"></i> <span>Mentor Hub</span>
+                </a>
+                <a href="{% url 'academics:teacher_subjects' %}" class="nav-link {% if 'teacher_subjects' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-folder-tree"></i> <span>Course Registry</span>
+                </a>
+                <a href="{% url 'analytics:teacher' %}" class="nav-link {% if 'analytics' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-users-viewfinder"></i> <span>Student Intel</span>
+                </a>
+
+            {% elif user.role == "admin" %}
+                <a href="{% url 'accounts:admin_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-shield-halved"></i> <span>Admin Control</span>
+                </a>
+                <a href="{% url 'institutes:institute_list' %}" class="nav-link {% if 'institutes' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-school"></i> <span>Institutes</span>
+                </a>
+                <a href="{% url 'academics:subject_list' %}" class="nav-link {% if 'subject_list' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-swatchbook"></i> <span>Global Syllabus</span>
+                </a>
+
+            {% elif user.role == "guardian" %}
+                <a href="{% url 'accounts:guardian_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'guardian_dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-shield-heart"></i> <span>Child Progress</span>
+                </a>
+            {% endif %}
+
+            <span class="nav-label">Management</span>
+            <a href="{% url 'notifications:notification_list' %}" class="nav-link {% if 'notifications' in request.path %}active{% endif %}">
+                <i class="fa-solid fa-bell"></i> <span>Updates</span>
+            </a>
+            <a href="{% url 'accounts:profile' %}" class="nav-link {% if 'profile' in request.path %}active{% endif %}">
+                <i class="fa-solid fa-user-gear"></i> <span>Settings</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{% url 'accounts:logout' %}" class="logout-pill">
+                <i class="fa-solid fa-power-off"></i>
+                <span>SECURE LOGOUT</span>
+            </a>
+        </div>
+    </aside>
+
+    <div class="main-wrapper">
+        <header class="top-header">
+            <div>
+                <div class="breadcrumb">Quest Sector / <span>{% block breadcrumb %}Overview{% endblock %}</span></div>
+                <h2 class="page-title">{% block page_title %}Platform Intel{% endblock %}</h2>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <a href="{% url 'notifications:notification_list' %}" class="notif-btn">
+                    <i class="fa-solid fa-bell"></i>
+                    {% if unread_notifications_count > 0 %}
+                        <span class="badge-dot">{{ unread_notifications_count }}</span>
+                    {% endif %}
+                </a>
+
+                <div class="user-pill" onclick="location.href='{% url 'accounts:profile' %}'">
+                    <div class="avatar">{{ user.email|slice:":1"|upper }}</div>
+                    <div class="hidden md:block">
+                        <div class="text-[12px] font-bold leading-none">{{ user.email|truncatechars:15 }}</div>
+                        <div class="text-[9px] font-extrabold text-[var(--secondary)] uppercase mt-1 tracking-wider">{{ user.role }} Account</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="content-hub">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script>
+        console.log("RuralEdu Authenticated Session: Active for {{ user.email }}");
+    </script>
+</body>
+</html>

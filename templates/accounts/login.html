@@ -1,0 +1,147 @@
+{% extends "base_public.html" %}
+{% load static %}
+
+{% block title %}Login | RuralEdu Quest{% endblock %}
+
+{% block content %}
+<style>
+    /* Full Page Centering Logic */
+    .auth-page-container {
+        min-height: calc(100vh - 80px); /* Adjust based on navbar height */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    /* Glassmorphism Card Style */
+    .glass-auth-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px) saturate(180%);
+        border: 2px solid #ffffff;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        border-radius: 40px;
+        width: 100%;
+        max-width: 500px;
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-auth-card:hover {
+        transform: translateY(-8px);
+    }
+
+    /* Icon Styling aligned with image */
+    .icon-box {
+        background: linear-gradient(135deg, #2E8B57 0%, #4C6EF5 100%);
+        width: 80px;
+        height: 80px;
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        box-shadow: 0 10px 20px rgba(46, 139, 87, 0.2);
+    }
+
+    /* Input Field Styling */
+    .fancy-input {
+        background: #F8F9FA;
+        border: 2px solid transparent;
+        padding: 1.2rem 1.5rem;
+        border-radius: 20px;
+        width: 100%;
+        transition: all 0.3s ease;
+        outline: none;
+    }
+
+    .fancy-input:focus {
+        background: #ffffff;
+        border-color: #2E8B57;
+        box-shadow: 0 0 15px rgba(46, 139, 87, 0.1);
+    }
+
+    .input-label {
+        font-size: 10px;
+        font-weight: 800;
+        color: #9ca3af;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        margin-bottom: 0.75rem;
+        display: block;
+        padding-left: 0.5rem;
+    }
+
+    /* Submit Button Styling */
+    .btn-initiate {
+        background: #2E8B57;
+        color: white;
+        width: 100%;
+        padding: 1.2rem;
+        border-radius: 20px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        margin-top: 1rem;
+    }
+
+    .btn-initiate:hover {
+        background: #1e5c3a;
+        box-shadow: 0 10px 20px rgba(46, 139, 87, 0.3);
+    }
+</style>
+
+<div class="auth-page-container mesh-gradient">
+    <div class="glass-auth-card p-10 md:p-14 animate-in fade-in zoom-in duration-500">
+        
+        <div class="text-center">
+            <div class="icon-box">
+                <i class="fa-solid fa-unlock-keyhole text-white text-3xl"></i>
+            </div>
+            <h2 class="heading-font text-4xl font-bold text-gray-900 mb-2">Welcome Back</h2>
+            <p class="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-10">Resuming Your STEM Journey</p>
+        </div>
+
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+
+            <div>
+                <label class="input-label">Registered Email</label>
+                <input type="email" name="email" required class="fancy-input" placeholder="name@school.com">
+            </div>
+
+            <div>
+                <label class="input-label">Secure Password</label>
+                <input type="password" name="password" required class="fancy-input" placeholder="••••••••">
+            </div>
+
+            <div class="flex items-center justify-between text-xs font-bold px-2">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" name="remember" id="remember" class="accent-[#2E8B57]">
+                    <label for="remember" class="text-gray-500 cursor-pointer">Stay Signed In</label>
+                </div>
+                <a href="{% url 'accounts:password_reset' %}" class="text-gray-400 hover:text-[#4C6EF5] transition-colors">Forgot Access?</a>
+            </div>
+
+            <button type="submit" class="btn-initiate">
+                Initiate Mission <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </form>
+
+        <div class="mt-10 pt-8 border-t border-gray-100 text-center">
+            <p class="text-sm font-medium text-gray-500">
+                New to the Platform? 
+                <a href="{% url 'accounts:signup' %}" class="text-[#2E8B57] font-black uppercase tracking-widest text-[11px] ml-2 hover:underline">
+                    Create Identity
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

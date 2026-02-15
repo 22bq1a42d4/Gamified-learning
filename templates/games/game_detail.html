@@ -1,0 +1,182 @@
+{% extends "base_auth.html" %}
+{% load static %}
+
+{% block title %}Mission Briefing | {{ game.title }}{% endblock %}
+{% block breadcrumb %}Student / Games / {{ game.title }}{% endblock %}
+{% block page_title %}Mission Briefing{% endblock %}
+
+{% block content %}
+<style>
+    /* Briefing Container */
+    .briefing-glass-card {
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(20px) saturate(180%);
+        border: 2px solid #ffffff;
+        border-radius: 50px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* 3D Stat Cluster */
+    .stat-pill-brief {
+        padding: 2rem;
+        border-radius: 30px;
+        text-align: center;
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 1px solid rgba(0,0,0,0.03);
+    }
+
+    .stat-pill-brief:hover {
+        transform: scale(1.05);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.05);
+    }
+
+    .icon-glow-bg {
+        width: 60px;
+        height: 60px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 1.5rem;
+    }
+
+    /* Start Button Master */
+    .btn-launch {
+        background: linear-gradient(135deg, var(--primary) 0%, #1e5c3a 100%);
+        color: white;
+        padding: 1.2rem 3rem;
+        border-radius: 25px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        display: inline-flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.4s ease;
+        box-shadow: 0 10px 25px rgba(46, 139, 87, 0.3);
+    }
+
+    .btn-launch:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(46, 139, 87, 0.4), 0 0 20px rgba(46, 139, 87, 0.2);
+    }
+
+    .btn-back-brief {
+        padding: 1.2rem 2.5rem;
+        border-radius: 25px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border: 2px solid var(--border-soft);
+        color: var(--text-muted);
+        transition: all 0.3s ease;
+    }
+
+    .btn-back-brief:hover {
+        border-color: var(--secondary);
+        color: var(--secondary);
+        background: #f0f4ff;
+    }
+</style>
+
+<div class="animate-in fade-in slide-in-from-bottom-10 duration-1000">
+    
+    <div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-10 px-4">
+        <div>
+            <span class="text-[10px] font-black text-[var(--primary)] uppercase tracking-[0.3em] mb-2 block">Mission Sector: {{ game.subject.name }}</span>
+            <h1 class="heading-font text-5xl font-black text-gray-900">{{ game.title }}</h1>
+        </div>
+        <div class="bg-white px-6 py-3 rounded-2xl shadow-sm border border-gray-100">
+            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Target Demographic</p>
+            <p class="font-bold text-gray-700">Class {{ user.academic_class.grade }} Pioneers</p>
+        </div>
+    </div>
+
+    <div class="briefing-glass-card p-10 md:p-16">
+        
+        <div class="grid md:grid-cols-3 gap-8 mb-16">
+            
+            <div class="stat-pill-brief bg-blue-50/50">
+                <div class="icon-glow-bg bg-white text-[var(--secondary)] shadow-sm">
+                    <i class="fa-solid fa-gauge-high"></i>
+                </div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Complexity</p>
+                <p class="heading-font text-xl font-black text-[var(--secondary)]">{{ game.get_difficulty_display }}</p>
+            </div>
+
+            <div class="stat-pill-brief bg-orange-50/50">
+                <div class="icon-glow-bg bg-white text-[var(--accent)] shadow-sm">
+                    <i class="fa-solid fa-bolt-lightning"></i>
+                </div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Max Reward</p>
+                <p class="heading-font text-xl font-black text-[var(--accent)]">+{{ game.xp_reward }} XP</p>
+            </div>
+
+            <div class="stat-pill-brief bg-green-50/50">
+                <div class="icon-glow-bg bg-white text-[var(--primary)] shadow-sm">
+                    <i class="fa-solid fa-list-check"></i>
+                </div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Mission Length</p>
+                <p class="heading-font text-xl font-black text-[var(--primary)]">{{ game.questions.count }} Objectives</p>
+            </div>
+
+        </div>
+
+        <div class="max-w-3xl mb-16">
+            <h3 class="heading-font text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                <span class="w-1.5 h-6 bg-[var(--primary)] rounded-full"></span>
+                Mission Objectives
+            </h3>
+            <p class="text-gray-500 leading-relaxed font-medium">
+                {% if game.description %}
+                    {{ game.description }}
+                {% else %}
+                    Engage in a specialized STEM module designed to test your mastery of <strong>{{ game.subject.name }}</strong>. 
+                    Accuracy is critical: your final XP reward will be calculated based on the precision of your answers.
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center gap-8 pt-10 border-t border-gray-100">
+            <a href="{% url 'games:play_game' game.id %}" class="btn-launch">
+                LAUNCH MISSION <i class="fa-solid fa-rocket-launch"></i>
+            </a>
+
+            <a href="{% url 'games:game_list' %}" class="btn-back-brief">
+                <i class="fa-solid fa-arrow-left mr-2"></i> ABORT MISSION
+            </a>
+
+            <div class="ml-auto hidden lg:flex items-center gap-4 opacity-50">
+                <i class="fa-solid fa-shield-check text-2xl text-[var(--primary)]"></i>
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">System Ready for Deployment</span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="mt-12 grid md:grid-cols-2 gap-6">
+        <div class="bg-gray-900 p-8 rounded-[35px] text-white flex items-center gap-6">
+            <div class="text-4xl text-[var(--accent)] animate-pulse">
+                <i class="fa-solid fa-lightbulb-on"></i>
+            </div>
+            <div>
+                <h4 class="font-bold text-sm">Pro Tip</h4>
+                <p class="text-xs text-gray-400 mt-1 leading-relaxed">Perfect scores unlock legendary badges and massive XP bonuses. Take your time, Pioneer!</p>
+            </div>
+        </div>
+        <div class="bg-[var(--secondary)] p-8 rounded-[35px] text-white flex items-center gap-6">
+            <div class="text-4xl opacity-50">
+                <i class="fa-solid fa-dna"></i>
+            </div>
+            <div>
+                <h4 class="font-bold text-sm">Syllabus Sync</h4>
+                <p class="text-xs opacity-70 mt-1 leading-relaxed">This mission is aligned with the latest {{ game.subject.name }} curriculum requirements.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

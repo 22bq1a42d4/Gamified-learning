@@ -1,0 +1,236 @@
+{% extends "base_auth.html" %}
+{% load static %}
+
+{% block title %}Intelligence Feed | Notifications | RuralEdu STEM{% endblock %}
+{% block breadcrumb %}System / Intelligence Feed{% endblock %}
+{% block page_title %}Mission Control Intelligence{% endblock %}
+
+{% block content %}
+<style>
+    /* Intelligence Hub Container */
+    .intel-feed-wrapper {
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(20px) saturate(180%);
+        border: 2px solid #ffffff;
+        border-radius: 50px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    /* Interactive Notification Items */
+    .intel-item {
+        padding: 2.5rem;
+        display: flex;
+        align-items: center;
+        gap: 2.5rem;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-left: 8px solid transparent;
+        position: relative;
+    }
+
+    .intel-item:hover {
+        background: rgba(76, 110, 245, 0.03);
+        transform: translateX(15px);
+    }
+
+    .status-unread {
+        background: #f0fdf4;
+        border-left-color: var(--primary);
+    }
+
+    .status-read {
+        background: white;
+        border-left-color: #f1f3f5;
+        opacity: 0.7;
+    }
+
+    /* Icon Archetypes */
+    .intel-icon-box {
+        width: 70px;
+        height: 70px;
+        border-radius: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        flex-shrink: 0;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+
+    .icon-xp { background: #fff8e1; color: var(--accent); }
+    .icon-badge { background: #eef2ff; color: var(--secondary); }
+    .icon-level { background: #f0fdf4; color: var(--primary); }
+    .icon-mentor { background: #faf5ff; color: #a855f7; }
+    .icon-system { background: #f8f9fa; color: #64748b; }
+
+    /* Post-Method Buttons (Bypass anchor GET limitation) */
+    .action-trigger {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+    }
+
+    .btn-dismiss {
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #94a3b8;
+        padding: 10px 20px;
+        border-radius: 14px;
+        border: 2px solid #f1f3f5;
+        transition: all 0.3s ease;
+    }
+
+    .btn-dismiss:hover {
+        background: white;
+        border-color: var(--primary);
+        color: var(--primary);
+        box-shadow: 0 5px 15px rgba(46, 139, 87, 0.15);
+    }
+
+    /* Floating Mark-All Button */
+    .btn-bulk-read {
+        background: white;
+        border: 2px solid var(--border-soft);
+        padding: 12px 24px;
+        border-radius: 18px;
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+    }
+
+    .btn-bulk-read:hover {
+        border-color: var(--secondary);
+        color: var(--secondary);
+        box-shadow: 0 10px 20px rgba(76, 110, 245, 0.1);
+        transform: translateY(-2px);
+    }
+</style>
+
+<div class="animate-in fade-in slide-in-from-bottom-10 duration-1000">
+    
+    <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-12 px-6">
+        <div>
+            <p class="text-gray-500 text-sm font-medium">Platform synchronization complete. Monitoring academic events and milestones.</p>
+        </div>
+        <div class="flex gap-4">
+            {% if unread_notifications_count > 0 %}
+                <form action="{% url 'notifications:read_all' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-bulk-read">
+                        <i class="fa-solid fa-envelope-open-text mr-2"></i> ARCHIVE ALL ALERTS
+                    </button>
+                </form>
+            {% endif %}
+            <a href="{% url 'accounts:student_dashboard' %}" class="btn-glow px-10 py-4 rounded-2xl text-xs flex items-center gap-3">
+                <i class="fa-solid fa-house-chimney"></i> DASHBOARD
+            </a>
+        </div>
+    </div>
+
+    <div class="intel-feed-wrapper">
+        <div class="divide-y divide-gray-100">
+            {% for n in notifications %}
+            <div class="intel-item {% if not n.is_read %}status-unread{% else %}status-read{% endif %}">
+                
+                <div class="intel-icon-box 
+                    {% if n.notification_type == 'xp' %}icon-xp
+                    {% elif n.notification_type == 'badge' %}icon-badge
+                    {% elif n.notification_type == 'level' %}icon-level
+                    {% elif n.notification_type == 'mentor' %}icon-mentor
+                    {% else %}icon-system{% endif %}">
+                    
+                    <i class="fa-solid 
+                        {% if n.notification_type == 'xp' %}fa-bolt-lightning
+                        {% elif n.notification_type == 'badge' %}fa-award
+                        {% elif n.notification_type == 'level' %}fa-angles-up
+                        {% elif n.notification_type == 'mentor' %}fa-user-tie
+                        {% elif n.notification_type == 'message' %}fa-message-captions
+                        {% else %}fa-satellite-dish{% endif %}">
+                    </i>
+                </div>
+
+                <div class="flex-1">
+                    <div class="flex items-center gap-4 mb-2">
+                        <h4 class="heading-font text-xl font-black text-gray-900">{{ n.title }}</h4>
+                        {% if not n.is_read %}
+                            <span class="px-3 py-1 rounded-full bg-[var(--primary)] text-white text-[8px] font-black uppercase tracking-tighter">New Intel</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-base text-gray-600 font-medium leading-relaxed mb-3 max-w-2xl">{{ n.message }}</p>
+                    <div class="flex items-center gap-4">
+                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                            <i class="fa-regular fa-clock-rotate-left mr-1"></i> Recorded {{ n.created_at|timesince }} ago
+                        </span>
+                        {% if n.redirect_url %}
+                            <span class="text-gray-200">|</span>
+                            <a href="{{ n.redirect_url }}" class="text-[10px] font-black text-[var(--secondary)] uppercase tracking-widest hover:underline">Execute Action <i class="fa-solid fa-arrow-right-long ml-1"></i></a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if not n.is_read %}
+                <div class="flex-shrink-0">
+                    <form action="{% url 'notifications:read' n.id %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-dismiss">
+                            Dismiss Intel
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="py-40 text-center">
+                <div class="w-32 h-32 bg-gray-50 text-gray-200 rounded-full flex items-center justify-center mx-auto mb-8 text-5xl">
+                    <i class="fa-solid fa-shield-slash"></i>
+                </div>
+                <h3 class="heading-font text-3xl font-black text-gray-400">Neutral Frequency</h3>
+                <p class="text-gray-300 font-medium max-w-sm mx-auto mt-3">No academic alerts or achievements are currently being broadcast to your sector.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="mt-16 bg-gray-900 p-12 rounded-[50px] text-white flex flex-col lg:flex-row items-center justify-between gap-10 shadow-2xl relative overflow-hidden group">
+        <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] opacity-5 transition-opacity group-hover:opacity-10"></div>
+        
+        <div class="flex items-center gap-8 relative z-10">
+            <div class="text-5xl text-[var(--accent)]">
+                <i class="fa-solid fa-microchip"></i>
+            </div>
+            <div>
+                <h4 class="heading-font text-2xl font-black">Intelligence Automation</h4>
+                <p class="text-sm text-gray-400 font-medium max-w-md mt-1 leading-relaxed">This feed is powered by the RuralEdu Quest logic engine, automatically archiving performance logs and system notifications.</p>
+            </div>
+        </div>
+        
+        <div class="flex gap-4 relative z-10">
+            <div class="bg-white/5 border border-white/10 px-8 py-4 rounded-2xl text-center">
+                <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1">Total Archived</p>
+                <p class="heading-font text-2xl font-bold">{{ notifications.count }}</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Staggered slide-in animation for notifications
+    document.addEventListener("DOMContentLoaded", () => {
+        const items = document.querySelectorAll('.intel-item');
+        items.forEach((item, index) => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                item.style.transition = 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)';
+                item.style.opacity = '1';
+                item.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base_auth.html" %}
+{% load static %}
+
+{% block title %}Find Mentor | RuralEdu{% endblock %}
+{% block breadcrumb %}Mentorship / Search{% endblock %}
+{% block page_title %}Find a Mentor{% endblock %}
+
+{% block content %}
+
+<style>
+    .mentor-card {
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: 14px;
+        padding: 25px;
+        transition: 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+
+    .mentor-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 24px rgba(46,139,87,0.12);
+    }
+
+    .mentor-avatar {
+        width: 60px;
+        height: 60px;
+        background: var(--secondary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 20px;
+    }
+
+    .btn-mentor {
+        background: var(--primary);
+        color: white;
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        border: none;
+        cursor: pointer;
+        transition: 0.3s ease;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-mentor:hover {
+        background: var(--accent);
+        box-shadow: 0 6px 15px rgba(255,165,2,0.4);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px;
+        color: var(--text-muted);
+    }
+</style>
+
+<div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px;">
+
+    {% for teacher in teachers %}
+    <div class="mentor-card">
+
+        <div style="display:flex; align-items:center; gap:15px; margin-bottom:15px;">
+            <div class="mentor-avatar">
+                {{ teacher.email|slice:":1"|upper }}
+            </div>
+            <div>
+                <h3 style="margin:0; font-family:Poppins; font-size:18px;">
+                    {{ teacher.email }}
+                </h3>
+                <p style="margin:0; font-size:12px; color:var(--text-muted);">
+                    Verified Teacher
+                </p>
+            </div>
+        </div>
+
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;">
+            Guide students in STEM subjects and monitor performance analytics.
+        </p>
+
+        <a href="{% url 'mentorship:send_request' teacher.id %}" class="btn-mentor">
+            Request Mentor
+        </a>
+
+    </div>
+    {% empty %}
+        <div class="empty-state">
+            <i class="fa-solid fa-user-slash" style="font-size:40px; color:var(--border-soft);"></i>
+            <p>No teachers available at the moment.</p>
+        </div>
+    {% endfor %}
+
+</div>
+
+{% endblock %}

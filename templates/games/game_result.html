@@ -1,0 +1,154 @@
+{% extends "base_auth.html" %}
+{% load static %}
+
+{% block title %}Mission Debrief | {{ game.title }}{% endblock %}
+{% block breadcrumb %}Mission / Results{% endblock %}
+{% block page_title %}Mission Accomplished{% endblock %}
+
+{% block content %}
+<style>
+    /* Success Container with Glassmorphism */
+    .result-glass-card {
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(20px) saturate(180%);
+        border: 2px solid #ffffff;
+        border-radius: 50px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+        max-width: 800px;
+        margin: 2rem auto;
+    }
+
+    /* 3D Score Ring */
+    .score-circle {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: white;
+        border: 8px solid var(--primary);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2.5rem;
+        box-shadow: 0 15px 30px rgba(46, 139, 87, 0.2), inset 0 4px 8px rgba(0,0,0,0.05);
+        animation: pop-in 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes pop-in {
+        0% { transform: scale(0.5); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* XP Reward Glow */
+    .xp-gain-badge {
+        background: #fff8e1;
+        border: 2px solid var(--accent);
+        padding: 1.5rem 3rem;
+        border-radius: 25px;
+        display: inline-block;
+        margin-bottom: 3rem;
+        animation: glow-pulse 2s infinite;
+    }
+
+    @keyframes glow-pulse {
+        0% { box-shadow: 0 0 0 0 rgba(255, 165, 2, 0.4); }
+        70% { box-shadow: 0 0 0 15px rgba(255, 165, 2, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 165, 2, 0); }
+    }
+
+    /* Interactive Action Buttons */
+    .btn-action-group {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-soft);
+    }
+
+    .btn-finish {
+        background: linear-gradient(135deg, var(--primary) 0%, #1e5c3a 100%);
+        color: white;
+        padding: 1.2rem 3rem;
+        border-radius: 20px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.4s ease;
+        box-shadow: 0 10px 20px rgba(46, 139, 87, 0.3);
+        text-decoration: none;
+        font-size: 12px;
+    }
+
+    .btn-finish:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(46, 139, 87, 0.4);
+    }
+
+    .btn-secondary-result {
+        padding: 1.2rem 3rem;
+        border-radius: 20px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border: 2px solid var(--border-soft);
+        color: var(--text-muted);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        font-size: 12px;
+    }
+
+    .btn-secondary-result:hover {
+        background: #f8f9fa;
+        border-color: var(--secondary);
+        color: var(--secondary);
+    }
+</style>
+
+<div class="animate-in fade-in zoom-in duration-1000 py-10">
+    <div class="result-glass-card p-12 md:p-16 text-center">
+        
+        <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--primary)] via-[var(--accent)] to-[var(--secondary)]"></div>
+
+        <div class="mb-10">
+            <h1 class="heading-font text-5xl font-black text-gray-900 mb-2">Quest Secured!</h1>
+            <p class="text-sm font-bold text-gray-400 uppercase tracking-[0.3em]">{{ game.title }}</p>
+        </div>
+
+        <div class="score-circle">
+            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Final Score</span>
+            <h2 class="heading-font text-5xl font-black text-gray-900">{{ score }}<span class="text-gray-300 text-2xl">/{{ total }}</span></h2>
+        </div>
+
+        <div class="xp-gain-badge">
+            <p class="text-[11px] font-black text-[var(--accent)] uppercase tracking-widest mb-2">Rewards Authorized</p>
+            <h3 class="heading-font text-4xl font-black text-gray-800">+{{ xp_earned }} XP</h3>
+        </div>
+
+        <div class="mb-12">
+            <p class="text-gray-500 font-medium leading-relaxed max-w-md mx-auto">
+                Excellent work, Pioneer! Your performance has been synchronized with your academic profile. Keep this momentum to unlock new badges.
+            </p>
+        </div>
+
+        <div class="btn-action-group">
+            <a href="{% url 'games:game_list' %}" class="btn-finish">
+                PLAY NEXT MISSION <i class="fa-solid fa-arrow-right ml-2"></i>
+            </a>
+            <a href="{% url 'accounts:student_dashboard' %}" class="btn-secondary-result">
+                VIEW DASHBOARD
+            </a>
+        </div>
+
+        <div class="mt-12 opacity-50">
+            {% if score == total %}
+                <span class="text-[10px] font-black text-green-600 uppercase tracking-widest"><i class="fa-solid fa-crown mr-2"></i> Perfect Performance Synchronized</span>
+            {% else %}
+                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Performance Data Logged Successfully</span>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

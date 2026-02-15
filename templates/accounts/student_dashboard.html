@@ -1,0 +1,296 @@
+{% extends "base_auth.html" %}
+{% load static %}
+
+{% block title %}Student Dashboard | RuralEdu STEM Quest{% endblock %}
+{% block breadcrumb %}Student / Mission Control{% endblock %}
+{% block page_title %}Your Learning Quest{% endblock %}
+
+{% block content %}
+<style>
+    /* Dashboard Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .stat-card {
+        background: var(--surface);
+        padding: 30px;
+        border-radius: 30px;
+        border: 2px solid white;
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .stat-card:hover { 
+        transform: translateY(-10px); 
+        box-shadow: 0 20px 40px -15px rgba(46, 139, 87, 0.1);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    }
+
+    /* XP Progress Section */
+    .xp-section {
+        background: white;
+        padding: 40px;
+        border-radius: 40px;
+        margin-bottom: 40px;
+        border: 2px solid white;
+        box-shadow: 0 15px 35px -15px rgba(0,0,0,0.08);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .level-badge {
+        background: var(--accent);
+        color: white;
+        padding: 6px 18px;
+        border-radius: 50px;
+        font-weight: 800;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        box-shadow: 0 4px 12px rgba(255, 165, 2, 0.3);
+    }
+
+    .progress-track {
+        height: 14px;
+        background: #f1f3f5;
+        border-radius: 20px;
+        overflow: hidden;
+        margin: 25px 0;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        border-radius: 20px;
+        box-shadow: 0 0 15px rgba(46, 139, 87, 0.4);
+        transition: width 1.5s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    /* Subject Grid */
+    .subject-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 25px;
+    }
+
+    .subject-card {
+        background: white;
+        padding: 30px;
+        border-radius: 35px;
+        border: 2px solid transparent;
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    }
+
+    .subject-card:hover {
+        transform: translateY(-8px);
+        border-color: var(--secondary);
+        box-shadow: 0 25px 50px -12px rgba(76, 110, 245, 0.15);
+    }
+
+    /* Badge Showcase */
+    .badge-showcase {
+        margin-top: 40px;
+        background: linear-gradient(135deg, #1e5c3a 0%, #2E8B57 100%);
+        padding: 45px;
+        border-radius: 45px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(46, 139, 87, 0.2);
+    }
+
+    .badge-item {
+        width: 90px;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+
+    .badge-icon {
+        width: 65px;
+        height: 65px;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(10px);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 12px;
+        font-size: 1.4rem;
+        border: 1px solid rgba(255,255,255,0.25);
+        color: white;
+    }
+
+    .badge-item:hover .badge-icon {
+        background: white;
+        color: var(--primary);
+        transform: scale(1.1) rotate(8deg);
+    }
+</style>
+
+<div class="animate-in fade-in duration-1000">
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #f0fdf4; color: var(--primary);">
+                <i class="fa-solid fa-fire-flame-curved"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Active Streak</p>
+                <h3 class="heading-font text-2xl font-black text-gray-800">{{ streak_count|default:"0" }} Days</h3>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #fff8e1; color: var(--accent);">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Global Rank</p>
+                <h3 class="heading-font text-2xl font-black text-gray-800">#{{ global_rank|default:"--" }}</h3>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #eef2ff; color: var(--secondary);">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Time Engaged</p>
+                <h3 class="heading-font text-2xl font-black text-gray-800">{{ engagement_time|default:"0" }} Mins</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="xp-section">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h3 class="heading-font text-2xl font-black text-gray-900">Experience Progression</h3>
+                <p class="text-sm text-gray-500 font-medium">Keep completing STEM games to advance your rank.</p>
+            </div>
+            <div class="level-badge">Rank {{ current_level|default:"1" }}</div>
+        </div>
+        
+        <div class="flex justify-between items-end mb-2 px-2">
+            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">{{ current_xp|default:"0" }} Current XP</span>
+            <span class="text-[10px] font-black text-[var(--primary)] uppercase tracking-widest">Target: {{ next_level_xp|default:"100" }} XP</span>
+        </div>
+        
+        <div class="progress-track">
+            <div class="progress-fill" style="width: {{ xp_percentage|default:'0' }}%;"></div>
+        </div>
+    </div>
+
+    <div class="flex justify-between items-center mb-10 px-4">
+        <h3 class="heading-font text-2xl font-black text-gray-900">Your Class {{ user.academic_class.grade|default:"--" }} Curriculum</h3>
+        <a href="{% url 'academics:student_subjects' %}" class="text-[10px] font-black text-[var(--secondary)] uppercase tracking-[0.15em] hover:underline">Full Syllabus Registry <i class="fa-solid fa-arrow-right-long ml-2"></i></a>
+    </div>
+
+    <div class="subject-grid">
+        <div class="subject-card">
+            <div class="subject-header">
+                <div class="w-14 h-14 bg-green-50 text-[var(--primary)] rounded-2xl flex items-center justify-center text-2xl shadow-inner">
+                    <i class="fa-solid fa-atom"></i>
+                </div>
+                <span class="text-[9px] font-black bg-green-100 px-3 py-1.5 rounded-xl text-[var(--primary)] uppercase">Active Mission</span>
+            </div>
+            <h4 class="heading-font text-xl font-bold text-gray-900 mb-2">Science Explorer</h4>
+            <p class="text-xs text-gray-400 font-medium leading-relaxed mb-8">Master physics concepts through interactive laboratory battles and XP-heavy quests.</p>
+            
+            <div class="flex justify-between items-center pt-6 border-t border-gray-50">
+                <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">3 Quest Objectives</div>
+                <a href="{% url 'games:game_list' %}" class="w-12 h-12 bg-[var(--primary)] rounded-2xl flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-play"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="subject-card">
+            <div class="subject-header">
+                <div class="w-14 h-14 bg-orange-50 text-[var(--accent)] rounded-2xl flex items-center justify-center text-2xl shadow-inner">
+                    <i class="fa-solid fa-calculator"></i>
+                </div>
+                <span class="text-[9px] font-black bg-gray-50 px-3 py-1.5 rounded-xl text-gray-400 uppercase">Sector Locked</span>
+            </div>
+            <h4 class="heading-font text-xl font-bold text-gray-900 mb-2">Mathematics Quest</h4>
+            <p class="text-xs text-gray-400 font-medium leading-relaxed mb-8">Numbers battles and geometry flowcharts. Reach Level 5 to fully unlock this sector.</p>
+            
+            <div class="flex justify-between items-center pt-6 border-t border-gray-50">
+                <div class="text-[9px] font-bold text-gray-300 uppercase tracking-widest">Mission Restricted</div>
+                <div class="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-300">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="subject-card flex flex-col justify-center items-center text-center border-dashed border-2 border-gray-200 bg-gray-50/30">
+            <div class="w-16 h-16 bg-white shadow-sm border border-gray-100 rounded-[20px] flex items-center justify-center text-[var(--secondary)] text-2xl mb-4">
+                <i class="fa-solid fa-user-tie"></i>
+            </div>
+            <h4 class="heading-font text-lg font-bold text-gray-800">Support Network</h4>
+            <p class="text-[10px] text-gray-400 mb-6 uppercase font-bold tracking-widest">Institute: {{ user.institute.name|default:"Unregistered" }}</p>
+            <a href="{% url 'mentorship:mentor_search' %}" class="px-8 py-3 bg-white border border-gray-200 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-[var(--primary)] hover:text-[var(--primary)] transition-all">Assign Mentor</a>
+        </div>
+    </div>
+
+    <div class="badge-showcase shadow-2xl">
+        <div class="flex justify-between items-center mb-12">
+            <div>
+                <h3 class="heading-font text-3xl font-black">Hall of Achievements</h3>
+                <p class="text-xs opacity-70 font-medium uppercase tracking-widest mt-1">Badge Registry Sync Active</p>
+            </div>
+            <button class="text-[10px] font-black border border-white/30 px-6 py-3 rounded-2xl hover:bg-white/10 transition-all">VIEW ARCHIVE</button>
+        </div>
+        
+        <div class="flex flex-wrap gap-12">
+            <div class="badge-item">
+                <div class="badge-icon"><i class="fa-solid fa-bolt-lightning"></i></div>
+                <p class="text-[10px] font-black uppercase tracking-widest">Quick Solver</p>
+            </div>
+            <div class="badge-item">
+                <div class="badge-icon" style="background: white; color: var(--accent);"><i class="fa-solid fa-calendar-check"></i></div>
+                <p class="text-[10px] font-black uppercase tracking-widest">7-Day Streak</p>
+            </div>
+            <div class="badge-item">
+                <div class="badge-icon"><i class="fa-solid fa-dna"></i></div>
+                <p class="text-[10px] font-black uppercase tracking-widest">Science Pro</p>
+            </div>
+            <div class="badge-item opacity-40 grayscale">
+                <div class="badge-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <p class="text-[10px] font-black uppercase tracking-widest">Math Guard</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Progressive reveal of XP bar on load
+    document.addEventListener("DOMContentLoaded", () => {
+        const fill = document.querySelector('.progress-fill');
+        const finalWidth = fill.style.width;
+        fill.style.width = '0%';
+        setTimeout(() => {
+            fill.style.width = finalWidth;
+        }, 500);
+    });
+</script>
+{% endblock %}

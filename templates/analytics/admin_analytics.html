@@ -1,0 +1,230 @@
+{% extends "base_auth.html" %}
+{% load static %}
+
+{% block title %}System Intelligence | Global Command{% endblock %}
+{% block breadcrumb %}Admin / Platform Intelligence{% endblock %}
+{% block page_title %}Platform Performance Command{% endblock %}
+
+{% block content %}
+<style>
+    /* 3D Glass Stats Grid */
+    .admin-stat-cluster {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border: 2px solid #ffffff;
+        border-radius: 35px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .admin-stat-cluster:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 60px -15px rgba(0,0,0,0.1);
+        border-color: var(--primary);
+    }
+
+    .stat-icon-glow {
+        width: 50px;
+        height: 50px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+    }
+
+    /* Intelligence Table */
+    .intel-table-wrapper {
+        background: white;
+        border-radius: 40px;
+        border: 1px solid var(--border-soft);
+        box-shadow: 0 20px 40px -20px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .intel-row:hover {
+        background: rgba(76, 110, 245, 0.02);
+    }
+
+    /* Dynamic Load Bar */
+    .progress-pill {
+        height: 8px;
+        background: #f0f2f5;
+        border-radius: 10px;
+        overflow: hidden;
+        width: 120px;
+    }
+
+    .progress-fill-primary { background: linear-gradient(90deg, var(--primary), #3cb371); }
+    .progress-fill-secondary { background: linear-gradient(90deg, var(--secondary), #748ffc); }
+
+    .rank-badge {
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 900;
+    }
+</style>
+
+<div class="animate-in fade-in slide-in-from-bottom-10 duration-1000">
+    
+    <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-12 px-4">
+        <div>
+            <p class="text-gray-500 text-sm font-medium">Real-time aggregate data across all registered sectors and academic pathways.</p>
+        </div>
+        <div class="flex items-center gap-3 bg-white px-6 py-3 rounded-2xl shadow-sm border border-gray-100">
+            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Global System Sync Active</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        
+        <div class="admin-stat-cluster">
+            <div class="stat-icon-glow bg-green-50 text-[var(--primary)]">
+                <i class="fa-solid fa-users-gear"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Registry</p>
+                <h2 class="heading-font text-4xl font-black text-gray-900 mt-1">{{ total_users|default:0 }}</h2>
+            </div>
+        </div>
+
+        <div class="admin-stat-cluster">
+            <div class="stat-icon-glow bg-blue-50 text-[var(--secondary)]">
+                <i class="fa-solid fa-user-graduate"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Student Pioneers</p>
+                <h2 class="heading-font text-4xl font-black text-[var(--secondary)] mt-1">{{ total_students|default:0 }}</h2>
+            </div>
+        </div>
+
+        <div class="admin-stat-cluster">
+            <div class="stat-icon-glow bg-orange-50 text-[var(--accent)]">
+                <i class="fa-solid fa-chalkboard-user"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Certified Mentors</p>
+                <h2 class="heading-font text-4xl font-black text-gray-800 mt-1">{{ total_teachers|default:0 }}</h2>
+            </div>
+        </div>
+
+        <div class="admin-stat-cluster">
+            <div class="stat-icon-glow bg-gray-50 text-gray-700">
+                <i class="fa-solid fa-landmark"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active Institutes</p>
+                <h2 class="heading-font text-4xl font-black text-gray-900 mt-1">{{ total_institutes|default:0 }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-10 mb-12">
+        
+        <div class="lg:col-span-1 bg-white rounded-[40px] border border-gray-100 p-8 shadow-sm">
+            <h3 class="heading-font text-xl font-black text-gray-800 mb-8 flex items-center gap-3">
+                <i class="fa-solid fa-crown text-[var(--accent)]"></i> Global Hall of Fame
+            </h3>
+            <div class="space-y-6">
+                {% for entry in global_top_students %}
+                <div class="flex items-center justify-between group">
+                    <div class="flex items-center gap-4">
+                        <div class="rank-badge {% if forloop.first %}bg-yellow-100 text-yellow-700{% else %}bg-gray-50 text-gray-400{% endif %}">
+                            {{ forloop.counter }}
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-800 group-hover:text-[var(--primary)] transition-colors">{{ entry.student.email|cut:"@gmail.com" }}</p>
+                            <p class="text-[9px] font-black text-gray-400 uppercase">{{ entry.student.institute.name|truncatechars:20 }}</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-black text-[var(--primary)]">{{ entry.total_xp }} XP</span>
+                </div>
+                {% empty %}
+                <p class="text-center py-10 text-gray-400 text-xs font-bold uppercase tracking-widest">No Leaderboard Data</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="lg:col-span-2 intel-table-wrapper">
+            <div class="p-8 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <h3 class="heading-font text-xl font-black text-gray-800">Institute Load Analysis</h3>
+                <button class="text-[10px] font-black text-[var(--primary)] uppercase tracking-widest hover:underline">Full Audit Report</button>
+            </div>
+            
+            <table class="w-full">
+                <thead class="bg-white border-b border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                    <tr>
+                        <th class="px-8 py-6 text-left">Sector Identity</th>
+                        <th class="px-8 py-6 text-left">Student Load</th>
+                        <th class="px-8 py-6 text-left">Mentor Cap</th>
+                        <th class="px-8 py-6 text-right">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    {% for inst in institute_stats %}
+                    <tr class="intel-row transition-colors bg-white">
+                        <td class="px-8 py-6">
+                            <div class="font-bold text-gray-900 text-base">{{ inst.name }}</div>
+                            <div class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">{{ inst.code }}</div>
+                        </td>
+                        <td class="px-8 py-6">
+                            <div class="flex items-center gap-4">
+                                <span class="font-black text-gray-700 w-6">{{ inst.total_students }}</span>
+                                <div class="progress-pill">
+                                    <div class="progress-fill-secondary h-full" style="width: 65%;"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-8 py-6">
+                            <div class="flex items-center gap-4">
+                                <span class="font-black text-gray-700 w-6">{{ inst.total_teachers }}</span>
+                                <div class="progress-pill">
+                                    <div class="progress-fill-primary h-full" style="width: 40%;"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-8 py-6 text-right">
+                            <span class="bg-green-50 text-green-600 px-3 py-1 rounded-lg font-black text-[9px] uppercase">Active</span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-8 py-20 text-center text-gray-400 font-bold uppercase tracking-widest text-xs">No sector data synchronized</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8">
+        <div class="bg-[var(--secondary)] p-8 rounded-[40px] text-white flex items-center gap-6 shadow-xl relative overflow-hidden">
+            <div class="text-4xl opacity-30"><i class="fa-solid fa-microchip"></i></div>
+            <div>
+                <h4 class="font-bold text-sm">Processing Architecture</h4>
+                <p class="text-xs opacity-70 mt-1 leading-relaxed">Metrics are computed via optimized aggregation filters for minimal server load.</p>
+            </div>
+        </div>
+        <div class="bg-gray-900 p-8 rounded-[40px] text-white flex items-center gap-6 shadow-xl relative overflow-hidden">
+            <div class="text-4xl text-[var(--accent)] animate-pulse"><i class="fa-solid fa-satellite-dish"></i></div>
+            <div>
+                <h4 class="font-bold text-sm">Real-time Feed</h4>
+                <p class="text-xs text-gray-400 mt-1 leading-relaxed">Current data represents a live snapshot of the rural education registry.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
