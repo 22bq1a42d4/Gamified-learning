@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
         :root {
@@ -420,8 +421,11 @@
                 <a href="{% url 'gamification:student_gamification_dashboard' %}" class="nav-link {% if 'gamification' in request.path %}active{% endif %}">
                     <i class="fa-solid fa-award"></i> <span>Achievements</span>
                 </a>
-                <a href="{% url 'chatbot:chat_page' %}" class="nav-link {% if 'chatbot' in request.path %}active{% endif %}">
+                <a href="{% url 'chatbot:chat_page' %}" class="nav-link {% if request.resolver_match.url_name == 'chat_page' %}active{% endif %}">
                     <i class="fa-solid fa-robot"></i> <span>AI Mentor</span>
+                </a>
+                <a href="{% url 'chatbot:reading_mode' %}" class="nav-link {% if request.resolver_match.url_name == 'reading_mode' %}active{% endif %}">
+                    <i class="fa-solid fa-book-open-reader"></i> <span>Reading Mode</span>
                 </a>
                 <a href="{% url 'analytics:student' %}" class="nav-link {% if 'analytics' in request.path %}active{% endif %}">
                     <i class="fa-solid fa-chart-line"></i> <span>Performance</span>
