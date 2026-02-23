@@ -1,5 +1,6 @@
-from pathlib import Path
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -58,6 +59,9 @@ STATICFILES_DIRS = [
 ]
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Load the .env file
+load_dotenv(BASE_DIR / '.env')
 
 # ===============================
 # MIDDLEWARE
@@ -134,6 +138,9 @@ EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+
+# Load settings from environment
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY") 
 # ===============================
 # DEFAULT PRIMARY KEY
 # ===============================
