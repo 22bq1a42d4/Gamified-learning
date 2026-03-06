@@ -69,3 +69,114 @@ The system follows a hierarchical architecture with three levels:
 ---
 
 ## 📂 Project Structure
+
+```
+Gamified-learning
+│
+├── gamified_project/
+│   │
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   ├── asgi.py
+│   └── wsgi.py
+│
+├── learning_app/
+│   │
+│   ├── migrations/
+│   ├── templates/
+│   ├── static/
+│   │
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── views.py
+│   ├── urls.py
+│   └── tests.py
+│
+├── db.sqlite3
+├── manage.py
+├── req.txt
+└── README.md
+```
+
+---
+
+## ⚙️ Installation and Setup
+
+### 1️⃣ Clone the repository
+```bash
+git clone https://github.com/22bq1a42d4/Gamified-learning.git
+```
+
+### 2️⃣ Navigate to the project directory
+```bash
+cd Gamified-learning
+```
+
+### 3️⃣ Create a virtual environment
+```bash
+python -m venv venv
+```
+
+### 4️⃣ Activate the virtual environment
+
+**Windows**
+```bash
+venv\Scripts\activate
+```
+
+**Mac/Linux**
+```bash
+source venv/bin/activate
+```
+
+### 5️⃣ Install dependencies
+```bash
+pip install -r req.txt
+```
+
+### 6️⃣ Apply database migrations
+```bash
+python manage.py migrate
+```
+
+### 7️⃣ Run the development server
+```bash
+python manage.py runserver
+```
+
+Open your browser and visit:
+
+```
+http://127.0.0.1:8000/
+```
+
+---
+
+## 📊 Expected Outcomes
+- Increased student engagement through gamified learning.
+- Better monitoring of student progress.
+- Improved accessibility to learning resources.
+- Enhanced digital education for rural students.
+
+---
+
+## 👨‍💻 Team Members
+- S. Naga Tejaswi  
+- S. Abhinav Sahat  
+- P. Noel  
+- Sk. Imran  
+
+---
+
+## ⭐ Future Enhancements
+- AI-based personalized learning
+- Mobile application integration
+- Offline learning support
+- Advanced analytics and dashboards
+
+---
+
+## 📜 License
+This project is developed for **academic and research purposes**.
