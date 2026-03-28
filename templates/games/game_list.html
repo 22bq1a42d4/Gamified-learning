@@ -121,7 +121,11 @@
             </div>
 
             <div class="game-icon-circle">
-                <i class="fa-solid {% if 'Quiz' in game.title %}fa-lightbulb{% elif 'Battle' in game.title %}fa-bolt-lightning{% else %}fa-microchip{% endif %}"></i>
+                            <i class="fa-solid 
+                {% if game.game_type == 'quiz' %}fa-lightbulb
+                {% elif game.game_type == 'canvas' %}fa-gamepad
+                {% elif game.game_type == 'simulation' %}fa-flask
+                {% else %}fa-puzzle-piece{% endif %}"></i>
             </div>
 
             <h3 class="heading-font text-2xl font-black text-gray-800 mb-2">{{ game.title }}</h3>

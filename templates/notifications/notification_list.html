@@ -125,9 +125,23 @@
                     </button>
                 </form>
             {% endif %}
-            <a href="{% url 'accounts:student_dashboard' %}" class="btn-glow px-10 py-4 rounded-2xl text-xs flex items-center gap-3">
-                <i class="fa-solid fa-house-chimney"></i> DASHBOARD
-            </a>
+            {% if user.role == "admin" %}
+                <a href="{% url 'accounts:admin_dashboard' %}" class="btn-glow px-10 py-4 rounded-2xl text-xs flex items-center gap-3">
+                    <i class="fa-solid fa-shield-halved"></i> COMMAND CENTER
+                </a>
+            {% elif user.role == "teacher" %}
+                <a href="{% url 'accounts:teacher_dashboard' %}" class="btn-glow px-10 py-4 rounded-2xl text-xs flex items-center gap-3">
+                    <i class="fa-solid fa-chalkboard-user"></i> MENTOR HUB
+                </a>
+            {% elif user.role == "student" %}
+                <a href="{% url 'accounts:student_dashboard' %}" class="btn-glow px-10 py-4 rounded-2xl text-xs flex items-center gap-3">
+                    <i class="fa-solid fa-house-chimney"></i> MY QUESTS
+                </a>
+            {% elif user.role == "guardian" %}
+                <a href="{% url 'accounts:guardian_dashboard' %}" class="btn-glow px-10 py-4 rounded-2xl text-xs flex items-center gap-3">
+                    <i class="fa-solid fa-shield-heart"></i> CHILD PROGRESS
+                </a>
+            {% endif %}
         </div>
     </div>
 

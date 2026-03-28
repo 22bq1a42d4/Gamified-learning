@@ -14,6 +14,13 @@ from django import forms
 from accounts.models import User  # Safe import of custom user model
 from games.models import StudentAttempt
 from analytics.models import StudentEngagement
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from accounts.decorators import role_required
+from accounts.models import User
+from institutes.models import Institute
+from games.models import Game, StudentAttempt
+from academics.models import Subject
 
 from .decorators import role_required
 from .models import EmailOTP
@@ -71,13 +78,15 @@ def signup_view(request):
 
         # Generate OTP
         otp = str(random.randint(100000, 999999))
-        EmailOTP.objects.update_or_create(student=user, defaults={"otp": otp})
+        print("OTP SENT:", otp)
+        EmailOTP.objects.update_or_create(user=user, defaults={"otp": otp})
 
         send_mail(
             subject="Verify your Gamified Learning account",
             message=f"Your OTP is {otp}. It expires in 10 minutes.",
             from_email=settings.EMAIL_HOST_USER,
             recipient_list=[email],
+            fail_silently=False,
         )
 
         request.session["verify_user"] = user.id
@@ -100,7 +109,7 @@ def verify_otp_view(request):
 
     if request.method == "POST":
         entered_otp = request.POST.get("otp")
-        otp_obj = EmailOTP.objects.filter(student=user).first()
+        otp_obj = EmailOTP.objects.filter(user=user).first()
 
         if otp_obj and not otp_obj.is_expired() and entered_otp == otp_obj.otp:
             user.is_active = True
@@ -157,52 +166,62 @@ def login_view(request):
 @login_required
 @role_required("student")
 def student_dashboard(request):
+    """
+    Finalized Student Dashboard: Dynamic ranking, real-time XP progression,
+    and academic sector synchronization.
+    """
     user = request.user
-
+    
+    # -----------------------------------------------------
+    # 1. EXPERIENCE & RANKING DATA
+    # -----------------------------------------------------
+    # Ensure the student has an XP record
     student_xp, _ = StudentXP.objects.get_or_create(student=user)
-    total_xp = student_xp.total_xp
-
+    
+    # DYNAMIC GLOBAL RANK: Count students with strictly more XP
+    better_ranks = StudentXP.objects.filter(total_xp__gt=student_xp.total_xp).count()
+    global_rank = better_ranks + 1
+    
+    # LEVEL LOGIC: Find current standing and next milestone
     levels = Level.objects.order_by("level_number")
+    current_level = levels.filter(xp_required__lte=student_xp.total_xp).last() or levels.first()
+    next_level = levels.filter(xp_required__gt=student_xp.total_xp).first() or current_level
+    
+    # PROGRESSION CALCULATION: Visual percentage for the progress bar
+    xp_range = next_level.xp_required - current_level.xp_required
+    if xp_range > 0:
+        current_progress = student_xp.total_xp - current_level.xp_required
+        xp_percentage = min(int((current_progress / xp_range) * 100), 100)
+    else:
+        # User has reached maximum level logic
+        xp_percentage = 100
 
-    current_level = None
-    next_level = None
-
-    for level in levels:
-        if total_xp >= level.xp_required:
-            current_level = level
-        elif not next_level:
-            next_level = level
-            break
-
-    if not current_level:
-        current_level = levels.first()
-
-    if not next_level:
-        next_level = levels.last()
-
-    xp_needed = next_level.xp_required if next_level else 1
-    xp_percentage = min((total_xp / xp_needed) * 100, 100)
-
-    subject_progress = SubjectXP.objects.filter(student=user)
-    for subject in subject_progress:
-        subject.progress_percent = min((subject.xp / 500) * 100, 100)
-
+    # -----------------------------------------------------
+    # 2. ACADEMIC & GAMIFICATION STATUS
+    # -----------------------------------------------------
+    # Fetch progress across different academic sectors
+    subject_progress = SubjectXP.objects.filter(student=user).select_related('subject')
+    
+    # Achievements and recent activity logs
     earned_badges = StudentBadge.objects.filter(student=user).select_related("badge")
     recent_logs = XPLog.objects.filter(student=user).order_by("-timestamp")[:5]
 
+    # -----------------------------------------------------
+    # 3. RENDER CONTEXT
+    # -----------------------------------------------------
     context = {
         "student_xp": student_xp,
         "current_level": current_level,
-        "next_level_xp": next_level.xp_required if next_level else 0,
+        "next_level_xp": next_level.xp_required,
         "xp_percentage": xp_percentage,
         "subject_progress": subject_progress,
         "earned_badges": earned_badges,
         "recent_logs": recent_logs,
         "streak_count": student_xp.streak_days,
+        "global_rank": global_rank,
     }
-
+    
     return render(request, "accounts/student_dashboard.html", context)
-
 
 # =====================================================
 # TEACHER DASHBOARD (PRODUCTION VERSION)
@@ -258,19 +277,19 @@ def teacher_dashboard(request):
 @login_required
 @role_required("admin")
 def admin_dashboard(request):
-
-    total_users = User.objects.count()
-    total_students = User.objects.filter(role="student").count()
-    total_teachers = User.objects.filter(role="teacher").count()
-    total_guardians = User.objects.filter(role="guardian").count()
-
+    # Platform Intelligence Metrics
     context = {
-        "total_users": total_users,
-        "total_students": total_students,
-        "total_teachers": total_teachers,
-        "total_guardians": total_guardians,
+        "total_users": User.objects.count(),
+        "total_students": User.objects.filter(role="student").count(),
+        "total_teachers": User.objects.filter(role="teacher").count(),
+        "total_guardians": User.objects.filter(role="guardian").count(),
+        "total_institutes": Institute.objects.count(),
+        "total_games": Game.objects.count(),
+        "total_subjects": Subject.objects.count(),
+        "total_attempts": StudentAttempt.objects.count(),
+        # Institute-wise breakdown for analytics
+        "recent_institutes": Institute.objects.all().order_by("-id")[:5],
     }
-
     return render(request, "accounts/admin_dashboard.html", context)
 
 

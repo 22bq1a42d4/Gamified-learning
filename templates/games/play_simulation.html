@@ -1,0 +1,72 @@
+{% extends "base_auth.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4 bg-[#F8F9FA] min-h-screen">
+    <div class="max-w-6xl mx-auto grid grid-cols-12 gap-6">
+        
+        <div class="col-span-3 space-y-6">
+            <div class="bg-white p-6 rounded-[35px] shadow-sm border border-gray-100">
+                <h3 class="font-black text-gray-800 mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-[var(--secondary)]"></i> Control Panel
+                </h3>
+                
+                <div class="space-y-8">
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Adjustment Alpha</label>
+                        <input type="range" id="param-1" class="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[var(--secondary)]">
+                        <div class="flex justify-between mt-2 text-xs font-bold text-gray-500">
+                            <span>0%</span> <span id="val-1">50%</span> <span>100%</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Flow Velocity</label>
+                        <input type="range" id="param-2" class="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[var(--primary)]">
+                        <div class="flex justify-between mt-2 text-xs font-bold text-gray-500">
+                            <span>Min</span> <span id="val-2">Mid</span> <span>Max</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="run-btn" class="w-full mt-10 py-4 bg-gray-900 text-white rounded-2xl font-black shadow-xl hover:bg-black transition-all group">
+                    INITIATE TEST <i class="fa-solid fa-play ml-2 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+
+            <div class="bg-[var(--primary)] p-6 rounded-[35px] text-white shadow-glow">
+                <h4 class="font-bold mb-2">Expert Tip</h4>
+                <p class="text-xs opacity-80 leading-relaxed">Precision is key in scientific simulations. Adjust sliders carefully to reach the target threshold.</p>
+            </div>
+        </div>
+
+        <div class="col-span-9 bg-white rounded-[40px] shadow-sm border border-gray-100 overflow-hidden relative">
+            <div class="absolute top-6 right-6 z-10 flex gap-2">
+                <div class="px-4 py-2 bg-white/80 backdrop-blur rounded-xl border border-gray-100 font-bold text-sm">
+                    <i class="fa-solid fa-gauge-high mr-2 text-blue-500"></i> Stability: <span id="stability">98%</span>
+                </div>
+            </div>
+
+            <div class="p-8 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                <div>
+                    <h2 class="text-2xl font-black text-gray-800">{{ game.title }}</h2>
+                    <p class="text-sm font-medium text-gray-500">Class 12 Specialized Laboratory Interface</p>
+                </div>
+                <button onclick="window.location.reload()" class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+
+            <div class="h-[500px] flex items-center justify-center bg-slate-900 relative">
+                <canvas id="simCanvas" width="800" height="400" class="max-w-full"></canvas>
+                
+                <div class="absolute bottom-6 left-6 p-4 bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 font-mono text-green-400 text-xs">
+                    <div>> SYSTEM_STATUS: OPERATIONAL</div>
+                    <div>> CALIBRATING_SENSORS... DONE</div>
+                    <div>> WAITING_FOR_INPUT_SIGNAL</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

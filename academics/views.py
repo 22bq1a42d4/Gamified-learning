@@ -1,180 +1,146 @@
-# academics/views.py
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Q
 from accounts.decorators import role_required
 from .models import AcademicClass, Stream, Subject
-from institutes.models import Institute
 from gamification.models import SubjectXP, Level
 
-
 # =====================================================
-# ADMIN → SUBJECT LIST
+# ADMIN → SUBJECT LIST (FIXED: Full Visibility)
 # =====================================================
 @login_required
 @role_required("admin")
 def subject_list_view(request):
-
+    """
+    Finalized Registry View: Fetches ALL subjects.
+    Sorting changed to newest first to verify your 'Social' module immediately.
+    """
     subjects = Subject.objects.select_related(
         "academic_class",
         "stream",
         "institute"
-    )
+    ).order_by('-id') # This puts Ref ID #EDU25 (Social) at the top
 
     return render(request, "academics/subject_list.html", {
         "subjects": subjects
     })
 
-
 # =====================================================
-# ADMIN → CREATE SUBJECT
+# ADMIN → CREATE SUBJECT (FIXED: IntegrityError Shield)
 # =====================================================
 @login_required
 @role_required("admin")
 def subject_create_view(request):
-
-    classes = AcademicClass.objects.all()
+    """
+    Controller: Safeguards against NULL institutes and validates 11-12 streams.
+    """
+    classes = AcademicClass.objects.all().order_by('grade')
     streams = Stream.objects.all()
-    institutes = Institute.objects.all()
 
     if request.method == "POST":
-
         name = request.POST.get("name")
         class_id = request.POST.get("academic_class")
         stream_id = request.POST.get("stream")
-        institute_id = request.POST.get("institute")
+        
+        # FIX: Ensure admin has an institute before saving
+        institute = request.user.institute 
+        if not institute:
+            messages.error(request, "🛡️ Profile Error: Your Admin account must be linked to an Institute in Django Admin.")
+            return redirect("academics:subject_list")
 
         academic_class = get_object_or_404(AcademicClass, id=class_id)
         stream = Stream.objects.filter(id=stream_id).first()
-        institute = get_object_or_404(Institute, id=institute_id)
 
-        # Stream validation for 11 & 12
+        # Validation for Classes 11 and 12
         if academic_class.grade in [11, 12] and not stream:
-            messages.error(request, "Stream required for Class 11 and 12.")
+            messages.error(request, "Error: A Stream (MPC/BIPC) is required for Class 11 and 12.")
+            return render(request, "academics/subject_create.html", {"classes": classes, "streams": streams})
+
+        if academic_class.grade < 11:
+            stream = None
+
+        try:
+            Subject.objects.create(
+                name=name,
+                academic_class=academic_class,
+                stream=stream,
+                institute=institute,
+            )
+            messages.success(request, f"Operational: '{name}' mapped to Class {academic_class.grade}.")
+            return redirect("academics:subject_list")
+        except Exception as e:
+            messages.error(request, f"Database Error: {str(e)}")
             return redirect("academics:subject_create")
 
-        Subject.objects.create(
-            name=name,
-            academic_class=academic_class,
-            stream=stream,
-            institute=institute,
-        )
-
-        messages.success(request, "Subject created successfully.")
-        return redirect("academics:subject_list")
-
-    return render(request, "academics/subject_create.html", {
-        "classes": classes,
-        "streams": streams,
-        "institutes": institutes
-    })
-
+    return render(request, "academics/subject_create.html", {"classes": classes, "streams": streams})
 
 # =====================================================
-# STUDENT → SUBJECT LIST
+# STUDENT → SUBJECT LIST (FIXED: Sync Visibility)
 # =====================================================
 @login_required
 @role_required("student")
 def student_subjects_view(request):
-
+    """
+    Dynamic Student View: Shows subjects matching the student's Grade
+    and their Institute (including Global Base modules).
+    """
     user = request.user
-
+    
+    # FIX: Show subjects belonging to student's institute OR global subjects (null institute)
     subjects = Subject.objects.filter(
         academic_class=user.academic_class,
-        institute=user.institute,
         is_active=True
+    ).filter(
+        Q(institute=user.institute) | Q(institute__isnull=True)
     )
 
-    # Stream filtering only for 11 & 12
     if user.stream:
         subjects = subjects.filter(stream=user.stream)
 
-    return render(request, "academics/student_subjects.html", {
-        "subjects": subjects
-    })
-
+    return render(request, "academics/student_subjects.html", {"subjects": subjects})
 
 # =====================================================
-# STUDENT → SUBJECT DETAIL PAGE
+# STUDENT → SUBJECT DETAIL (FIXED: Permission Logic)
 # =====================================================
 @login_required
 @role_required("student")
 def subject_detail_view(request, pk):
-
-    # --------------------------------------
-    # GET SUBJECT (Institute-secured)
-    # --------------------------------------
+    """
+    Secure Detail View: Calculates levels and XP progress for the student.
+    """
+    # FIX: Allow access if subject is global or student's institute
     subject = get_object_or_404(
         Subject,
-        pk=pk,
-        institute=request.user.institute,
-        is_active=True
+        Q(pk=pk, is_active=True),
+        Q(institute=request.user.institute) | Q(institute__isnull=True)
     )
 
-    # --------------------------------------
-    # GET ACTIVE GAMES
-    # --------------------------------------
     games = subject.games.filter(is_active=True)
-
-    # --------------------------------------
-    # GET SUBJECT XP RECORD
-    # --------------------------------------
-    subject_xp_obj, created = SubjectXP.objects.get_or_create(
-        student=request.user,
-        subject=subject,
-        defaults={"xp": 0}
+    subject_xp_obj, _ = SubjectXP.objects.get_or_create(
+        student=request.user, subject=subject, defaults={"xp": 0}
     )
 
     subject_xp = subject_xp_obj.xp
-
-    # --------------------------------------
-    # LEVEL CALCULATION
-    # --------------------------------------
     levels = Level.objects.order_by("xp_required")
 
-    current_level = None
-    next_level = None
+    current_level = levels.filter(xp_required__lte=subject_xp).last() or levels.first()
+    next_level = levels.filter(xp_required__gt=subject_xp).first() or current_level
 
-    for level in levels:
-        if subject_xp >= level.xp_required:
-            current_level = level
-        elif subject_xp < level.xp_required:
-            next_level = level
-            break
-
-    # If student exceeded highest level
-    if not next_level:
-        next_level = current_level
-
-    subject_level = current_level.level_number if current_level else 1
-
-    # --------------------------------------
-    # XP PROGRESS PERCENTAGE
-    # --------------------------------------
-    if current_level and next_level and current_level != next_level:
-        xp_in_current_level = subject_xp - current_level.xp_required
-        xp_range = next_level.xp_required - current_level.xp_required
-        xp_percentage = int((xp_in_current_level / xp_range) * 100)
+    # XP Progress Logic
+    xp_range = next_level.xp_required - current_level.xp_required
+    if xp_range > 0:
+        xp_percentage = min(int(((subject_xp - current_level.xp_required) / xp_range) * 100), 100)
     else:
         xp_percentage = 100
 
-    # Safety cap
-    if xp_percentage > 100:
-        xp_percentage = 100
-    if xp_percentage < 0:
-        xp_percentage = 0
-
-    # --------------------------------------
-    # RENDER
-    # --------------------------------------
     return render(request, "academics/subject_detail.html", {
         "subject": subject,
         "games": games,
         "subject_xp": subject_xp,
-        "subject_level": subject_level,
-        "next_level": next_level.level_number if next_level else subject_level,
-        "xp_percentage": xp_percentage,
+        "subject_level": current_level.level_number,
+        "next_level": next_level.level_number,
+        "xp_percentage": max(xp_percentage, 0),
     })
 
 # =====================================================
@@ -183,12 +149,48 @@ def subject_detail_view(request, pk):
 @login_required
 @role_required("teacher")
 def teacher_subjects_view(request):
-
+    """
+    Teacher Curriculum Portal: Dynamic listing of STEM modules 
+    authorized for the teacher's specific institute.
+    """
+    # Filter subjects by the teacher's institute and ensure they are active
     subjects = Subject.objects.filter(
         institute=request.user.institute,
         is_active=True
-    )
+    ).select_related('academic_class', 'stream').order_by('academic_class__grade')
 
     return render(request, "academics/teacher_subjects.html", {
         "subjects": subjects
     })
+
+# academics/views.py
+
+# academics/views.py
+
+@login_required
+@role_required("teacher") # Or "admin"
+def subject_missions_view(request, subject_id):
+    """
+    Mission Control: Displays quick-access cards for all STEM games 
+    linked to a specific subject.
+    """
+    subject = get_object_or_404(Subject, id=subject_id)
+    # Fetch all games associated with this subject
+    missions = subject.games.all() 
+
+    return render(request, "academics/mission_control.html", {
+        "subject": subject,
+        "missions": missions
+    })
+
+@login_required
+@role_required("teacher")
+def teacher_subjects_view(request):
+    """Teacher view limited to their sector."""
+    subjects = Subject.objects.filter(
+        institute=request.user.institute,
+        is_active=True
+    ).select_related('academic_class', 'stream').order_by('academic_class__grade')
+
+    return render(request, "academics/teacher_subjects.html", {"subjects": subjects})
+

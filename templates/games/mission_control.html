@@ -1,0 +1,47 @@
+{% extends "base_auth.html" %}
+{% block title %}Mission Control | {{ subject.name }}{% endblock %}
+
+{% block content %}
+<style>
+    .mission-card {
+        background: white; border-radius: 20px; padding: 2rem;
+        border: 2px solid #E9ECEF; transition: 0.3s;
+    }
+    .mission-card:hover { border-color: #4C6EF5; transform: translateY(-5px); }
+    .status-badge { font-size: 10px; padding: 4px 10px; border-radius: 8px; font-weight: 800; }
+</style>
+
+<div class="animate-in fade-in duration-700">
+    <div class="mb-10 flex justify-between items-center">
+        <div>
+            <h2 class="text-2xl font-black text-gray-900">{{ subject.name }} Missions</h2>
+            <p class="text-sm text-gray-500">Managing STEM content for Grade {{ subject.academic_class.grade }}</p>
+        </div>
+        <button class="px-6 py-3 bg-[#2E8B57] text-white rounded-xl font-bold text-xs shadow-lg">
+            <i class="fa-solid fa-plus mr-2"></i> ADD NEW MISSION
+        </button>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+        {% for mission in missions %}
+        <div class="mission-card shadow-sm">
+            <div class="flex justify-between mb-4">
+                <span class="status-badge {% if mission.is_active %}bg-green-50 text-green-600{% else %}bg-red-50 text-red-600{% endif %}">
+                    {% if mission.is_active %}OPERATIONAL{% else %}OFFLINE{% endif %}
+                </span>
+                <span class="text-[10px] font-bold text-gray-400">#{{ mission.id }}</span>
+            </div>
+            <h4 class="font-bold text-gray-800 mb-2">{{ mission.title }}</h4>
+            <p class="text-xs text-gray-500 mb-6 line-clamp-2">{{ mission.description }}</p>
+            
+            <div class="flex gap-2">
+                <a href="#" class="flex-1 py-2 bg-blue-50 text-[#4C6EF5] text-center rounded-lg text-[10px] font-bold">EDIT</a>
+                <a href="#" class="flex-1 py-2 bg-red-50 text-red-500 text-center rounded-lg text-[10px] font-bold">DELETE</a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full py-20 text-center opacity-50">No missions found for this sector.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

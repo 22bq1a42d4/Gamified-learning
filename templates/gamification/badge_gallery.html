@@ -1,0 +1,30 @@
+{% extends "base_auth.html" %}
+{% block content %}
+<div class="container-fluid py-6 animate-in fade-in duration-700">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-black text-gray-900 mb-2">Achievement Matrix</h1>
+        <p class="text-gray-500 font-medium">Unlock these relics by mastering STEM subjects.</p>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
+        {% for badge in all_badges %}
+        <div class="p-8 rounded-[40px] text-center transition-all 
+            {% if badge in unlocked_badges %} 
+                bg-white shadow-xl border-2 border-[var(--accent)] 
+            {% else %} 
+                bg-gray-100 opacity-40 grayscale 
+            {% endif %}">
+            
+            <div class="w-20 h-20 mx-auto mb-4 flex items-center justify-center rounded-full bg-orange-50 text-[var(--accent)] text-3xl shadow-glow">
+                <i class="fa-solid {{ badge.icon|default:'fa-medal' }}"></i>
+            </div>
+            
+            <h4 class="font-black text-gray-800 text-sm mb-1">{{ badge.name }}</h4>
+            <span class="text-[9px] font-black uppercase tracking-widest text-gray-400">
+                {% if badge in unlocked_badges %} Unlocked {% else %} {{ badge.xp_threshold }} XP Required {% endif %}
+            </span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
