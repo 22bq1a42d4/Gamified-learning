@@ -1,6 +1,6 @@
 # 🎮 Gamified Learning Platform
 
-🚀 **Live Demo:** http://32.236.45.20/
+🚀 **Live Demo:** http://32.236.45.20:8000/
 
 ---
 
