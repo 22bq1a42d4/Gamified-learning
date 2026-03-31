@@ -170,7 +170,7 @@ python manage.py runserver
 
 The project is deployed using **AWS EC2 Instance**
 
-🔗 Live URL: http://32.236.45.20/
+🔗 Live URL: http://32.236.45.20:8000/
 
 ---
 
